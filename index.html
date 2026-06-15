@@ -798,36 +798,30 @@
       if (isAudioActive || isInitializing) return;
       isInitializing = true;
 
-      // Request client audio interaction permission
-      userStartAudio().then(() => {
-        mic.start(
-          // Success callback
-          () => {
-            isAudioActive = true;
-            isInitializing = false;
-            
-            // Show HUD panel
-            document.getElementById('hud').classList.add('visible');
-            
-            // Fade out intro overlay screen smoothly
-            const overlay = document.getElementById('intro-overlay');
-            overlay.style.opacity = '0';
-            setTimeout(() => {
-              overlay.style.display = 'none';
-            }, 800);
-          },
-          // Error callback
-          (err) => {
-            console.error("Microphone initialization error:", err);
-            isInitializing = false;
-            displayMicError();
-          }
-        );
-      }).catch(err => {
-        console.error("Audio Context initiation error:", err);
-        isInitializing = false;
-        displayMicError();
-      });
+      // Start mic directly. p5.sound handles native prompt & AudioContext activation.
+      mic.start(
+        // Success callback
+        () => {
+          isAudioActive = true;
+          isInitializing = false;
+          
+          // Show HUD panel
+          document.getElementById('hud').classList.add('visible');
+          
+          // Fade out intro overlay screen smoothly
+          const overlay = document.getElementById('intro-overlay');
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 800);
+        },
+        // Error callback
+        (err) => {
+          console.error("Microphone initialization error:", err);
+          isInitializing = false;
+          displayMicError();
+        }
+      );
     }
 
     // --- DETAILED ERROR MESSAGES FOR INSUFFICIENT PERMISSION ---
