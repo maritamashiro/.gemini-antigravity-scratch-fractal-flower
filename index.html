@@ -57,7 +57,7 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     }
 
-    /* Full-screen Intro Glass Overlay */
+    /* Full-screen Intro Glass Overlay (tap anywhere to enable mic) */
     #intro-overlay {
       position: fixed;
       top: 0;
@@ -73,6 +73,7 @@
       align-items: center;
       transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
       padding: 24px;
+      cursor: pointer;
     }
 
     /* Intro Card Design */
@@ -252,14 +253,14 @@
   <!-- Interactive p5 Canvas Container -->
   <div id="canvas-container"></div>
 
-  <!-- Full-Screen Intro Card Screen -->
-  <div id="intro-overlay">
+  <!-- Full-Screen Intro Card Screen (tap anywhere to trigger prompt) -->
+  <div id="intro-overlay" onclick="handleOverlayClick(event)">
     <div class="intro-card" id="intro-content">
       <h1 class="intro-title">Blow to Bloom</h1>
       <p class="intro-subtitle">
-        Enable your microphone, then blow softly near your phone or device to nurture a glowing fractal flower. Tap the screen at any time to calibrate silence.
+        Tap anywhere on the screen to enable your microphone, then blow softly near your phone or device to nurture a glowing fractal flower.
       </p>
-      <button class="btn" id="enable-btn" onclick="initializeAudio()">Enable Microphone</button>
+      <button class="btn" id="enable-btn">Tap Screen to Start</button>
       
       <!-- Hidden by default, shown if access is denied -->
       <div id="error-message"></div>
@@ -779,14 +780,31 @@
       resizeCanvas(windowWidth, windowHeight);
     }
 
+    let isInitializing = false;
+
+    // --- HANDLE OVERLAY TAP-ANYWHERE INTERACTION ---
+    function handleOverlayClick(event) {
+      // If error message is visible, don't trigger automatic initialization on random clicks
+      const errorDiv = document.getElementById('error-message');
+      if (errorDiv && errorDiv.style.display === 'block') {
+        return;
+      }
+      initializeAudio();
+    }
+
     // --- MICROPHONE PERMISSION INITIALIZATION ---
     function initializeAudio() {
+      // Guard against multiple concurrent initialization runs
+      if (isAudioActive || isInitializing) return;
+      isInitializing = true;
+
       // Request client audio interaction permission
       userStartAudio().then(() => {
         mic.start(
           // Success callback
           () => {
             isAudioActive = true;
+            isInitializing = false;
             
             // Show HUD panel
             document.getElementById('hud').classList.add('visible');
@@ -801,11 +819,13 @@
           // Error callback
           (err) => {
             console.error("Microphone initialization error:", err);
+            isInitializing = false;
             displayMicError();
           }
         );
       }).catch(err => {
         console.error("Audio Context initiation error:", err);
+        isInitializing = false;
         displayMicError();
       });
     }
