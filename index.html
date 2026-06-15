@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Breath-Bloom Fractal Flower 🌸</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="An interactive generative art prototype using p5.js. Blow into your microphone to make a glowing, hand-drawn dragon curve fractal flower bloom.">
+  <meta name="keywords" content="p5.js, generative art, L-system, dragon curve, interactive web art, creative coding">
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+  
+  <!-- p5.js and p5.sound CDN Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/addons/p5.sound.min.js"></script>
+
+  <style>
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #121319; /* Rich dark charcoal slate background */
+      font-family: 'Outfit', sans-serif;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Paper texture overlay for the hand-drawn illustration feeling */
+    .paper-texture {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0.07;
+      /* SVG Turbulence noise creating realistic paper grains */
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Full-screen Intro Glass Overlay */
+    #intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 19, 25, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      padding: 24px;
+    }
+
+    /* Intro Card Design */
+    .intro-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 40px 32px;
+      max-width: 480px;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4), 
+                  inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      animation: cardFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Title Styling with glowing neon gradients */
+    .intro-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 16px;
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 15px rgba(240, 101, 149, 0.4), 
+                   0 0 30px rgba(34, 184, 207, 0.2);
+    }
+
+    .intro-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* Pulsing Glowing Button */
+    .btn {
+      position: relative;
+      background: linear-gradient(135deg, #22b8cf 0%, #f06595 100%);
+      color: #ffffff;
+      border: none;
+      padding: 16px 36px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(240, 101, 149, 0.35);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(240, 101, 149, 0.55);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Graceful Error Container */
+    #error-message {
+      display: none;
+      color: #ff8787;
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255, 135, 135, 0.08);
+      border: 1px solid rgba(255, 135, 135, 0.2);
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #error-message h3 {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* Minimalist Audio & Calibration HUD */
+    .hud-container {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(18, 19, 25, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 14px 18px;
+      z-index: 3;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none; /* Let clicks pass to canvas */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .hud-container.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hud-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hud-label {
+      width: 50px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.7rem;
+    }
+
+    .hud-bar-bg {
+      width: 100px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hud-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #22b8cf;
+      border-radius: 10px;
+      transition: width 0.1s ease;
+    }
+
+    .hud-indicator-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #ffd43b; /* Shows noise floor */
+      z-index: 2;
+    }
+
+    .hud-info {
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-align: center;
+      margin-top: 2px;
+      letter-spacing: 0.2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fine fibrous paper texture overlay -->
+  <div class="paper-texture"></div>
+
+  <!-- Interactive p5 Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Full-Screen Intro Card Screen -->
+  <div id="intro-overlay">
+    <div class="intro-card" id="intro-content">
+      <h1 class="intro-title">Blow to Bloom</h1>
+      <p class="intro-subtitle">
+        Enable your microphone, then blow softly near your phone or device to nurture a glowing fractal flower. Tap the screen at any time to calibrate silence.
+      </p>
+      <button class="btn" id="enable-btn" onclick="initializeAudio()">Enable Microphone</button>
+      
+      <!-- Hidden by default, shown if access is denied -->
+      <div id="error-message"></div>
+    </div>
+  </div>
+
+  <!-- Minimalist HUD -->
+  <div id="hud" class="hud-container">
+    <div class="hud-item">
+      <span class="hud-label">Breath</span>
+      <div class="hud-bar-bg">
+        <div id="hud-bar-energy" class="hud-bar-fill"></div>
+        <div id="hud-threshold" class="hud-indicator-line"></div>
+      </div>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Bloom</span>
+      <div class="hud-bar-bg">
+        <div id="hud-bar-growth" class="hud-bar-fill" style="background: linear-gradient(90deg, #62de66, #f06595);"></div>
+      </div>
+    </div>
+    <div class="hud-info">Tap canvas to recalibrate silence</div>
+  </div>
+
+  <script>
+    // --- SKETCH CONSTANTS & VARIABLES ---
+    let points = [];               // Precomputed Dragon Curve points
+    let scaleFactor = 1.0;        // Responsive scaling factor
+    
+    // Audio / Microphone Inputs
+    let mic;                       // p5.AudioIn object
+    let breathEnergy = 0.0;        // Smoothed energy (0.0 to 1.0)
+    let noiseFloor = 0.012;        // Silence threshold (recalibrated by clicks)
+    let maxInputLevel = 0.25;      // The mic level considered "maximum blow"
+    
+    // Bloom physics interpolation
+    let targetGrowth = 0.0;        // Mapped breath goal (0.0 to 1.0)
+    let currentGrowth = 0.0;       // Smoothly interpolated growth (0.0 to 1.0)
+    let isAudioActive = false;     // True when mic starts successfully
+    
+    // Aesthetic elements
+    let particles = [];            // Spawning pollen sparkles
+    let calibrationRing = null;    // Click feedback indicator
+    let centerGlowSize = 0;        // Breathing radial background glow size
+    
+    // L-System Rules: Dragon Curve
+    const iterations = 11;         // 2^11 = 2048 segments (perfect density)
+    const axiom = "FX";
+    const rules = {
+      'X': "X+YF+",
+      'Y': "-FX-Y"
+    };
+
+    // --- SETUP & GENERATIVE COMPUTATION ---
+    function setup() {
+      const canvas = createCanvas(windowWidth, windowHeight);
+      canvas.parent('canvas-container');
+      
+      // Compute the Dragon Curve L-System points once at startup
+      generateDragonCurve();
+      
+      // Initialize mic instance (do not start it yet)
+      mic = new p5.AudioIn();
+    }
+
+    // --- GENERATE & NORMALIZE DRAGON CURVE ---
+    function generateDragonCurve() {
+      // 1. Expand L-System instructions
+      let currentInstruction = axiom;
+      for (let i = 0; i < iterations; i++) {
+        let next = "";
+        for (let char of currentInstruction) {
+          if (rules[char]) {
+            next += rules[char];
+          } else {
+            next += char;
+          }
+        }
+        currentInstruction = next;
+      }
+      
+      // 2. Trace coordinates using turtle mechanics
+      let rawPoints = [];
+      let currentPos = createVector(0, 0);
+      rawPoints.push(currentPos.copy());
+      
+      let currentAngle = 0;
+      let stepSize = 10; // Arbitrary unit, normalized later
+      
+      for (let char of currentInstruction) {
+        if (char === 'F') {
+          currentPos.x += cos(currentAngle) * stepSize;
+          currentPos.y += sin(currentAngle) * stepSize;
+          rawPoints.push(currentPos.copy());
+        } else if (char === '+') {
+          currentAngle += HALF_PI; // Turn Right 90 degrees
+        } else if (char === '-') {
+          currentAngle -= HALF_PI; // Turn Left 90 degrees
+        }
+      }
+      
+      // 3. Center relative to start point and normalize max radius to 1.0
+      // Shifting points so the seed (point 0) remains anchored at (0,0)
+      let origin = rawPoints[0].copy();
+      let maxDist = 0.001; // Avoid division by zero
+      
+      for (let p of rawPoints) {
+        p.sub(origin);
+        let dist = p.mag();
+        if (dist > maxDist) {
+          maxDist = dist;
+        }
+      }
+      
+      // Scale all points so they fall within a circle of radius 1.0 around the seed
+      for (let p of rawPoints) {
+        p.div(maxDist);
+      }
+      
+      points = rawPoints;
+    }
+
+    // --- MAIN RENDER LOOP ---
+    function draw() {
+      // Dark slate background with very slight trails for motion blur
+      background(18, 19, 25, 60);
+      
+      // Calculate responsive scale factor (keeps entire curve on screen)
+      scaleFactor = min(width, height) * 0.43;
+      
+      // Shift flower center slightly down and center-horizontal
+      let centerX = width / 2;
+      let centerY = height / 2 + (height * 0.05);
+      
+      // Process Microphone level & update growth curves
+      handleMicrophoneInput();
+      
+      // Draw background glows and soft aura
+      drawAmbientBacklight(centerX, centerY);
+      
+      // Render generative flower layers
+      drawFlowerSkeleton(centerX, centerY);
+      drawTranslucentPetals(centerX, centerY);
+      
+      // Pulsing Seed/Bud at center
+      drawSeedBud(centerX, centerY);
+      
+      // Particles and interactive feedback
+      updatePollenParticles(centerX, centerY);
+      drawCalibrationFeedback();
+      
+      // Update floating HUD indicators
+      updateHUD();
+    }
+
+    // --- AUDIO PROCESSING & INTERPOLATION ---
+    function handleMicrophoneInput() {
+      if (!isAudioActive || !mic) return;
+      
+      let rawVolume = mic.getLevel();
+      
+      // Apply noise floor threshold filter
+      let cleanedVolume = max(0, rawVolume - noiseFloor);
+      
+      // Map to full 0.0 to 1.0 energy range
+      let targetEnergy = map(cleanedVolume, 0, maxInputLevel - noiseFloor, 0, 1, true);
+      
+      // Smooth mic input to filter out high-frequency jitters (organic feel)
+      breathEnergy = lerp(breathEnergy, targetEnergy, 0.1);
+      
+      // Set target growth based on breath energy
+      targetGrowth = breathEnergy;
+      
+      // Apply asymmetric physics:
+      // Growth happens fast when blowing; retraction occurs slow and gentle when quiet.
+      let diff = targetGrowth - currentGrowth;
+      if (diff > 0) {
+        currentGrowth += diff * 0.075; // Fast bloom speed
+      } else {
+        currentGrowth += diff * 0.016; // Slow folding speed
+      }
+      
+      // Add subtle constant breathing oscillation even at rest
+      let idleBreathe = sin(frameCount * 0.02) * 0.003;
+      currentGrowth = constrain(currentGrowth + idleBreathe, 0, 1);
+    }
+
+    // --- AMBIENT BACKLIGHTS & GLOWS ---
+    function drawAmbientBacklight(cx, cy) {
+      push();
+      translate(cx, cy);
+      
+      // Soft breathing aura size based on current bloom state
+      centerGlowSize = lerp(centerGlowSize, currentGrowth * scaleFactor * 1.5, 0.05);
+      
+      noStroke();
+      
+      // Radial glow 1: Neon Cyan/Blue
+      fill(34, 184, 207, 8); 
+      ellipse(0, 0, scaleFactor * 1.6 + centerGlowSize, scaleFactor * 1.6 + centerGlowSize);
+      
+      // Radial glow 2: Soft Dreamy Magenta
+      fill(240, 101, 149, 7); 
+      ellipse(0, 0, scaleFactor * 1.0 + centerGlowSize * 0.8, scaleFactor * 1.0 + centerGlowSize * 0.8);
+      
+      pop();
+    }
+
+    // --- DRAW FLOWER SKELETON (DRAGON CURVE) ---
+    function drawFlowerSkeleton(cx, cy) {
+      let visibleCount = floor(points.length * currentGrowth);
+      if (visibleCount < 2) return;
+      
+      push();
+      translate(cx, cy);
+      
+      // Draw path segment-by-segment to implement gradient colors and sketchy offsets
+      for (let i = 1; i < visibleCount; i++) {
+        let pPrev = points[i - 1];
+        let p = points[i];
+        
+        // Add low-frequency Perlin noise to coordinates for hand-illustrated wobble
+        let wobbleXPrev = noise(pPrev.x * 3.0, pPrev.y * 3.0, frameCount * 0.005) * 6 - 3;
+        let wobbleYPrev = noise(pPrev.x * 3.0, pPrev.y * 3.0 + 10, frameCount * 0.005) * 6 - 3;
+        let wobbleX = noise(p.x * 3.0, p.y * 3.0, frameCount * 0.005) * 6 - 3;
+        let wobbleY = noise(p.x * 3.0, p.y * 3.0 + 10, frameCount * 0.005) * 6 - 3;
+        
+        let x1 = pPrev.x * scaleFactor + wobbleXPrev;
+        let y1 = pPrev.y * scaleFactor + wobbleYPrev;
+        let x2 = p.x * scaleFactor + wobbleX;
+        let y2 = p.y * scaleFactor + wobbleY;
+        
+        // Color gradient along the length (cyan-blue -> green -> yellow -> magenta/pink)
+        let t = i / points.length;
+        let col = getAestheticColor(t);
+        
+        // Draw primary sketch stem line
+        stroke(col.levels[0], col.levels[1], col.levels[2], 100);
+        strokeWeight(1.8);
+        line(x1, y1, x2, y2);
+        
+        // Draw secondary offset stroke for a beautiful hand-sketched ink style
+        stroke(col.levels[0], col.levels[1], col.levels[2], 40);
+        strokeWeight(0.8);
+        line(x1 + 1.5, y1 - 1, x2 + 1.5, y2 - 1);
+      }
+      
+      pop();
+    }
+
+    // --- DRAW TRANSLUCENT NEON PETALS ---
+    function drawTranslucentPetals(cx, cy) {
+      let visibleCount = floor(points.length * currentGrowth);
+      if (visibleCount < 2) return;
+      
+      push();
+      translate(cx, cy);
+      
+      // Render a petal shape periodically along the curve
+      let step = 6; // Draw a petal every 6th node to preserve composition and performance
+      
+      for (let i = 0; i < visibleCount; i += step) {
+        let p = points[i];
+        
+        let wobbleX = noise(p.x * 3.0 + 5, p.y * 3.0, frameCount * 0.005) * 6 - 3;
+        let wobbleY = noise(p.x * 3.0, p.y * 3.0 + 15, frameCount * 0.005) * 6 - 3;
+        
+        let sx = p.x * scaleFactor + wobbleX;
+        let sy = p.y * scaleFactor + wobbleY;
+        
+        let t = i / points.length;
+        
+        // Size scales down near stem base, larger and soft at blooming tips
+        let baseSize = map(t, 0, 1, 6, 26) * (0.8 + currentGrowth * 0.4);
+        
+        // Breath oscillation for organic sway/pulse
+        let petalPulse = sin(frameCount * 0.05 + i * 0.15) * 2;
+        let petalW = baseSize + petalPulse;
+        let petalH = (baseSize + petalPulse) * 0.6; // Elongated petal
+        
+        // Orient the petal rotation along the curve segment tangent
+        let angle = 0;
+        if (i < points.length - 1) {
+          let pNext = points[i + 1];
+          angle = atan2(pNext.y - p.y, pNext.x - p.x);
+        }
+        
+        push();
+        translate(sx, sy);
+        rotate(angle);
+        
+        let col = getAestheticColor(t);
+        
+        // 1. Soft Neon Aura/Glow
+        noStroke();
+        fill(col.levels[0], col.levels[1], col.levels[2], 12);
+        ellipse(0, 0, petalW * 2.6, petalH * 2.6);
+        
+        // 2. Translucent Petal Fill
+        fill(col.levels[0], col.levels[1], col.levels[2], 45);
+        ellipse(0, 0, petalW, petalH);
+        
+        // 3. Delicate outline shifted slightly for the sketchy, hand-drawn look
+        noFill();
+        stroke(col.levels[0] + 20, col.levels[1] + 20, col.levels[2] + 20, 120);
+        strokeWeight(0.9);
+        ellipse(random(-0.5, 0.5), random(-0.5, 0.5), petalW, petalH);
+        
+        pop();
+      }
+      
+      pop();
+    }
+
+    // --- PULSING CENTRAL SEED / BUD ---
+    function drawSeedBud(cx, cy) {
+      push();
+      translate(cx, cy);
+      
+      // The seed fades out as the flower blooms
+      let seedOpacity = map(currentGrowth, 0, 0.25, 255, 0, true);
+      
+      if (seedOpacity > 0) {
+        // Natural seed breathing cycle
+        let pulse = sin(frameCount * 0.05) * 3;
+        let seedSize = (26 + pulse);
+        
+        // Inner gold core glow
+        noStroke();
+        fill(255, 224, 102, seedOpacity * 0.12);
+        ellipse(0, 0, seedSize * 2.2, seedSize * 2.2);
+        
+        // Glowing Bud body (layered watercolor styling)
+        fill(240, 101, 149, seedOpacity * 0.55); // Magenta base
+        stroke(255, 224, 102, seedOpacity * 0.85); // Glowing gold borders
+        strokeWeight(1.5);
+        
+        // Hand-drawn tear drop bud geometry
+        beginShape();
+        vertex(0, -seedSize / 2);
+        bezierVertex(seedSize * 0.6, -seedSize * 0.25, seedSize * 0.45, seedSize * 0.5, 0, seedSize * 0.5);
+        bezierVertex(-seedSize * 0.45, seedSize * 0.5, -seedSize * 0.6, -seedSize * 0.25, 0, -seedSize / 2);
+        endShape(CLOSE);
+        
+        // Core vertical texture line
+        stroke(255, 255, 255, seedOpacity * 0.4);
+        strokeWeight(1.0);
+        line(0, -seedSize / 2, 0, seedSize * 0.4);
+      }
+      
+      pop();
+    }
+
+    // --- POLLEN PARTICLES ON ACTIVE TIP ---
+    function updatePollenParticles(cx, cy) {
+      let visibleCount = floor(points.length * currentGrowth);
+      
+      // Only spawn pollen at the active tip when growing or fully bloomed
+      if (visibleCount > 0 && currentGrowth > 0.05) {
+        let tipIdx = max(0, visibleCount - 1);
+        let pTip = points[tipIdx];
+        
+        let tipX = cx + pTip.x * scaleFactor;
+        let tipY = cy + pTip.y * scaleFactor;
+        
+        // Spawn probability correlates with breath intensity
+        if (breathEnergy > 0.04 && random(1) < 0.25) {
+          let t = tipIdx / points.length;
+          let col = getAestheticColor(t);
+          particles.push(new Pollen(tipX + random(-5, 5), tipY + random(-5, 5), col));
+        }
+      }
+      
+      // Update and display active sparkles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.update();
+        p.display();
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    // --- COLOR PALETTE GENERATOR (NEON ACCENTS) ---
+    function getAestheticColor(t) {
+      // t loops from 0 (stem start) to 1 (blooming edges)
+      // Custom neon color nodes
+      let c1, c2;
+      
+      if (t < 0.25) {
+        // Neon Blue/Cyan -> Lime Green
+        let pct = map(t, 0, 0.25, 0, 1);
+        c1 = color(34, 184, 207);  // Neon Cyan
+        c2 = color(98, 222, 102);  // Lime Green
+        return lerpColor(c1, c2, pct);
+      } else if (t < 0.5) {
+        // Lime Green -> Glowing Yellow
+        let pct = map(t, 0.25, 0.5, 0, 1);
+        c1 = color(98, 222, 102);
+        c2 = color(255, 224, 102); // Neon Yellow
+        return lerpColor(c1, c2, pct);
+      } else if (t < 0.75) {
+        // Glowing Yellow -> Vibrant Coral/Rose
+        let pct = map(t, 0.5, 0.75, 0, 1);
+        c1 = color(255, 224, 102);
+        c2 = color(240, 62, 62);   // Sunset Coral
+        return lerpColor(c1, c2, pct);
+      } else {
+        // Coral -> Soft Neon Magenta
+        let pct = map(t, 0.75, 1, 0, 1);
+        c1 = color(240, 62, 62);
+        c2 = color(240, 101, 149); // Neon Pink/Magenta
+        return lerpColor(c1, c2, pct);
+      }
+    }
+
+    // --- POLLEN CLASS DEFINITION ---
+    class Pollen {
+      constructor(x, y, col) {
+        this.pos = createVector(x, y);
+        this.vel = createVector(random(-0.8, 0.8), random(-1.6, -0.4)); // Drifts upward
+        this.alpha = 255;
+        this.color = col;
+        this.size = random(2.0, 4.5);
+        this.noiseSeed = random(100);
+      }
+      
+      update() {
+        // Add slight wind-drift using Perlin noise
+        let wind = noise(this.pos.x * 0.01, this.pos.y * 0.01, frameCount * 0.01 + this.noiseSeed) * 0.8 - 0.4;
+        this.pos.x += this.vel.x + wind;
+        this.pos.y += this.vel.y;
+        this.alpha -= 2.8; // Decay rate
+      }
+      
+      display() {
+        noStroke();
+        // Glowing outer circle
+        fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha * 0.2);
+        ellipse(this.pos.x, this.pos.y, this.size * 2.8, this.size * 2.8);
+        
+        // Solid white spark core
+        fill(255, 255, 255, this.alpha);
+        ellipse(this.pos.x, this.pos.y, this.size, this.size);
+      }
+    }
+
+    // --- CLICK-TO-CALIBRATE FEEDBACK ---
+    function drawCalibrationFeedback() {
+      if (calibrationRing) {
+        noFill();
+        stroke(255, 224, 102, calibrationRing.alpha);
+        strokeWeight(2);
+        ellipse(calibrationRing.x, calibrationRing.y, calibrationRing.radius, calibrationRing.radius);
+        
+        noStroke();
+        fill(255, 255, 255, calibrationRing.alpha);
+        textAlign(CENTER, CENTER);
+        textFont('Outfit');
+        textSize(12);
+        text("Silence Calibrated", calibrationRing.x, calibrationRing.y - 22);
+        
+        // Smoothly expand and fade ring out
+        calibrationRing.radius = lerp(calibrationRing.radius, calibrationRing.maxRadius, 0.1);
+        calibrationRing.alpha = lerp(calibrationRing.alpha, 0, 0.12);
+        
+        if (calibrationRing.alpha < 2) {
+          calibrationRing = null;
+        }
+      }
+    }
+
+    // --- RECALIBRATE NOISE FLOOR ---
+    function mousePressed() {
+      // Prevent clicks/taps if intro overlay is still active
+      if (document.getElementById('intro-overlay').style.display !== 'none') return;
+      
+      recalibrateFloor(mouseX, mouseY);
+    }
+
+    function recalibrateFloor(x, y) {
+      let currentLevel = mic ? mic.getLevel() : 0.01;
+      
+      // Set noise floor to current volume plus small buffer (safeguard against static background noise)
+      noiseFloor = max(0.005, currentLevel + 0.006);
+      
+      // Trigger expanding circular feedback ring
+      calibrationRing = {
+        x: x,
+        y: y,
+        radius: 12,
+        maxRadius: 85,
+        alpha: 255
+      };
+    }
+
+    // --- UPDATE HUD INTERFACE ---
+    function updateHUD() {
+      if (!isAudioActive) return;
+      
+      // Update HUD energy fill bar
+      let energyPercentage = constrain(breathEnergy * 100, 0, 100);
+      document.getElementById('hud-bar-energy').style.width = `${energyPercentage}%`;
+      
+      // Update HUD growth fill bar
+      let growthPercentage = constrain(currentGrowth * 100, 0, 100);
+      document.getElementById('hud-bar-growth').style.width = `${growthPercentage}%`;
+      
+      // Move yellow threshold indicator in the energy bar
+      let thresholdPosition = constrain((noiseFloor / maxInputLevel) * 100, 0, 100);
+      document.getElementById('hud-threshold').style.left = `${thresholdPosition}%`;
+    }
+
+    // --- WINDOW RESIZE ---
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+
+    // --- MICROPHONE PERMISSION INITIALIZATION ---
+    function initializeAudio() {
+      // Request client audio interaction permission
+      userStartAudio().then(() => {
+        mic.start(
+          // Success callback
+          () => {
+            isAudioActive = true;
+            
+            // Show HUD panel
+            document.getElementById('hud').classList.add('visible');
+            
+            // Fade out intro overlay screen smoothly
+            const overlay = document.getElementById('intro-overlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+              overlay.style.display = 'none';
+            }, 800);
+          },
+          // Error callback
+          (err) => {
+            console.error("Microphone initialization error:", err);
+            displayMicError();
+          }
+        );
+      }).catch(err => {
+        console.error("Audio Context initiation error:", err);
+        displayMicError();
+      });
+    }
+
+    // --- DETAILED ERROR MESSAGES FOR INSUFFICIENT PERMISSION ---
+    function displayMicError() {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.innerHTML = `
+        <h3>Microphone Access Blocked</h3>
+        <p>This prototype needs microphone access to detect breath inputs and make the flower bloom.</p>
+        <p style="margin: 8px 0; font-weight: 300;">Please check your browser settings: enable permission for this site, and click Try Again.</p>
+        <p style="margin-bottom: 12px; font-size: 0.8rem; color: rgba(255,255,255,0.4);">Note: Browsers restrict microphone access to 'localhost' or 'HTTPS' protocols on mobile devices.</p>
+        <button class="btn" style="padding: 10px 24px; font-size: 0.9rem;" onclick="initializeAudio()">Try Again</button>
+      `;
+      errorDiv.style.display = 'block';
+      
+      // Hide the initial call-to-action button to show full error message card
+      document.getElementById('enable-btn').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
