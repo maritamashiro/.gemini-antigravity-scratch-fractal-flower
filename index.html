@@ -6,8 +6,8 @@
   <title>Breath-Bloom Fractal Flower 🌸</title>
   
   <!-- SEO Meta Tags -->
-  <meta name="description" content="An interactive generative art prototype using p5.js. Blow into your microphone to make a glowing, hand-drawn dragon curve fractal flower bloom.">
-  <meta name="keywords" content="p5.js, generative art, L-system, dragon curve, interactive web art, creative coding">
+  <meta name="description" content="An interactive celestial botanical art prototype. Blow into your microphone to make an illustrated, hand-drawn fractal plant study bloom.">
+  <meta name="keywords" content="p5.js, generative art, L-system, dragon curve, interactive web art, creative coding, botanical illustration">
   
   <!-- Premium Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: #f4f1ea; /* Warm cream/light gray background */
+      background-color: #f5f2eb; /* Antique parchment background */
       font-family: 'Outfit', sans-serif;
     }
 
@@ -52,7 +52,7 @@
       height: 100%;
       pointer-events: none;
       z-index: 5;
-      opacity: 0.08; /* Slightly stronger for print textures */
+      opacity: 0.12; /* Slightly stronger for print textures */
       /* SVG Turbulence noise creating realistic paper grains */
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     }
@@ -64,35 +64,36 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(244, 241, 234, 0.75); /* Light cream glassmorphism */
-      backdrop-filter: blur(20px) saturate(140%);
-      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      background: rgba(245, 242, 235, 0.82); /* Warm light cream parchment glass */
+      backdrop-filter: blur(25px) saturate(120%);
+      -webkit-backdrop-filter: blur(25px) saturate(120%);
       z-index: 10;
       display: flex;
       justify-content: center;
       align-items: center;
       transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
-      padding: 24px;
+      padding: clamp(16px, 4vw, 36px);
       cursor: pointer;
     }
 
     /* Intro Card Design */
     .intro-card {
-      background: rgba(255, 255, 255, 0.65);
-      border: 1px solid rgba(74, 72, 67, 0.08);
-      border-radius: 28px;
-      padding: 40px 32px;
-      max-width: 480px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(74, 72, 67, 0.12);
+      border-radius: 24px;
+      padding: clamp(28px, 6vw, 48px) clamp(20px, 5vw, 36px);
+      width: 100%;
+      max-width: 440px;
       text-align: center;
-      box-shadow: 0 24px 80px rgba(74, 72, 67, 0.08), 
-                  inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 60px rgba(74, 72, 67, 0.06), 
+                  inset 0 1px 1px rgba(255, 255, 255, 0.9);
       animation: cardFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     @keyframes cardFadeIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(15px);
       }
       to {
         opacity: 1;
@@ -100,93 +101,106 @@
       }
     }
 
-    /* Title Styling with glowing neon gradients */
+    /* Title Styling - Elegant Serif */
     .intro-title {
       font-family: 'Playfair Display', serif;
-      font-size: 2.5rem;
+      font-size: clamp(2rem, 7vw, 2.7rem);
       font-weight: 800;
-      color: #2c2a25;
-      margin-bottom: 16px;
-      line-height: 1.2;
-      letter-spacing: -0.5px;
-      text-shadow: 0 0 15px rgba(243, 198, 203, 0.3);
+      color: #4a4843; /* Charcoal */
+      margin-bottom: clamp(10px, 3vw, 16px);
+      line-height: 1.25;
+      letter-spacing: -0.3px;
     }
 
     .intro-subtitle {
-      font-size: 1rem;
-      color: rgba(60, 58, 53, 0.8);
-      margin-bottom: 32px;
-      line-height: 1.6;
+      font-size: clamp(0.9rem, 2.8vw, 1.02rem);
+      color: rgba(74, 72, 67, 0.82);
+      margin-bottom: clamp(20px, 5vw, 32px);
+      line-height: 1.55;
       font-weight: 300;
     }
 
-    /* Pastel Button */
+    /* Antique Botanical Button */
     .btn {
       position: relative;
-      background: linear-gradient(135deg, #c5e9d6 0%, #f3c6cb 100%); /* Mint to blush pink pastels */
-      color: #2c2a25;
-      border: 1px solid rgba(74, 72, 67, 0.1);
-      padding: 16px 36px;
-      font-size: 1.05rem;
+      background: linear-gradient(135deg, #cfb068 0%, #dca796 100%); /* Old gold to muted coral */
+      color: #f5f2eb;
+      border: 1px solid rgba(74, 72, 67, 0.15);
+      padding: clamp(12px, 3.2vw, 16px) clamp(24px, 6vw, 36px);
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
       font-weight: 600;
       border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(243, 198, 203, 0.25);
+      box-shadow: 0 8px 25px rgba(207, 176, 104, 0.25);
       transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
       overflow: hidden;
+      width: 100%;
+      max-width: 280px;
+      display: inline-block;
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(243, 198, 203, 0.45);
+      box-shadow: 0 12px 30px rgba(207, 176, 104, 0.4);
     }
 
     .btn:active {
       transform: translateY(1px);
     }
 
+    /* Poetic hint details */
+    .intro-hint {
+      font-size: clamp(0.7rem, 2.2vw, 0.78rem);
+      color: rgba(74, 72, 67, 0.55);
+      margin-top: 18px;
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
     /* Graceful Error Container */
     #error-message {
       display: none;
-      color: #c92a2a;
+      color: #92400e;
       margin-top: 20px;
       padding: 16px;
-      background: rgba(201, 42, 42, 0.05);
-      border: 1px solid rgba(201, 42, 42, 0.15);
+      background: rgba(207, 176, 104, 0.06);
+      border: 1px solid rgba(207, 176, 104, 0.25);
       border-radius: 16px;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      font-size: 0.88rem;
+      line-height: 1.55;
     }
 
     #error-message h3 {
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      font-family: 'Playfair Display', serif;
     }
 
-    /* Minimalist Audio & Calibration HUD */
+    /* Minimalist HUD */
     .hud-container {
       position: absolute;
-      bottom: 24px;
-      left: 24px;
-      background: rgba(244, 241, 234, 0.7);
+      bottom: clamp(16px, 4vw, 24px);
+      left: clamp(16px, 4vw, 24px);
+      background: rgba(245, 242, 235, 0.82);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(74, 72, 67, 0.1);
-      border-radius: 16px;
-      padding: 14px 18px;
-      z-index: 3;
-      color: #3c3a35;
-      font-size: 0.8rem;
+      border: 1px solid rgba(74, 72, 67, 0.15);
+      border-radius: 14px;
+      padding: clamp(10px, 2.5vw, 14px) clamp(12px, 3vw, 18px);
+      z-index: 8;
+      color: #4a4843;
+      font-size: 0.76rem;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      pointer-events: none; /* Let clicks pass to canvas */
-      box-shadow: 0 10px 30px rgba(74, 72, 67, 0.05);
+      gap: 8px;
+      pointer-events: none;
+      box-shadow: 0 10px 30px rgba(74, 72, 67, 0.04);
       transition: opacity 0.5s ease, transform 0.5s ease;
       opacity: 0;
       transform: translateY(10px);
+      width: clamp(180px, 50vw, 220px);
     }
 
     .hud-container.visible {
@@ -197,20 +211,22 @@
     .hud-item {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     .hud-label {
-      width: 50px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      color: rgba(60, 58, 53, 0.5);
-      font-size: 0.7rem;
+      color: rgba(74, 72, 67, 0.5);
+      font-size: 0.65rem;
+      flex-shrink: 0;
+      width: 45px;
     }
 
     .hud-bar-bg {
-      width: 100px;
+      flex-grow: 1;
       height: 5px;
       background: rgba(74, 72, 67, 0.08);
       border-radius: 10px;
@@ -221,7 +237,7 @@
     .hud-bar-fill {
       height: 100%;
       width: 0%;
-      background: #c5e9d6; /* Mint fill */
+      background: #7d8c82; /* Muted gray-green */
       border-radius: 10px;
       transition: width 0.1s ease;
     }
@@ -231,38 +247,38 @@
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #f3c6cb; /* Blush pink threshold indicator */
+      background: #cfb068; /* Old gold */
       z-index: 2;
     }
 
     .hud-info {
-      font-size: 0.65rem;
-      color: rgba(60, 58, 53, 0.4);
+      font-size: 0.62rem;
+      color: rgba(74, 72, 67, 0.45);
       text-align: center;
       margin-top: 2px;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.1px;
     }
 
     /* Flower Selector Panel */
     .selector-container {
       position: absolute;
-      top: 24px;
+      top: clamp(16px, 4vw, 24px);
       left: 50%;
-      transform: translateX(-50%);
-      background: rgba(244, 241, 234, 0.7);
+      transform: translate(-50%, -10px);
+      background: rgba(245, 242, 235, 0.82);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(74, 72, 67, 0.1);
+      border: 1px solid rgba(74, 72, 67, 0.15);
       border-radius: 50px;
-      padding: 6px;
+      padding: 5px;
       z-index: 8;
       display: flex;
-      gap: 6px;
-      box-shadow: 0 10px 30px rgba(74, 72, 67, 0.05);
+      gap: 4px;
+      box-shadow: 0 10px 30px rgba(74, 72, 67, 0.04);
       transition: opacity 0.5s ease, transform 0.5s ease;
       opacity: 0;
-      transform: translate(-50%, -10px);
       pointer-events: none;
+      max-width: 90%;
     }
 
     .selector-container.visible {
@@ -274,23 +290,37 @@
     .selector-btn {
       background: transparent;
       border: none;
-      color: rgba(60, 58, 53, 0.6);
-      padding: 10px 22px;
+      color: rgba(74, 72, 67, 0.65);
+      padding: clamp(8px, 2vw, 10px) clamp(12px, 3.5vw, 20px);
       font-family: 'Outfit', sans-serif;
-      font-size: 0.85rem;
+      font-size: clamp(0.72rem, 2.2vw, 0.82rem);
       font-weight: 600;
       border-radius: 50px;
       cursor: pointer;
       transition: all 0.3s ease;
       white-space: nowrap;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .selector-btn.active {
-      background: linear-gradient(135deg, #c5e9d6 0%, #f3c6cb 100%);
-      color: #2c2a25;
-      box-shadow: 0 4px 15px rgba(243, 198, 203, 0.2);
-      border: 1px solid rgba(74, 72, 67, 0.05);
+      background: linear-gradient(135deg, #7d8c82 0%, #dca796 100%); /* gray-green to muted coral */
+      color: #f5f2eb;
+      box-shadow: 0 4px 12px rgba(220, 167, 150, 0.2);
+    }
+
+    /* Small screens responsive tweaks */
+    @media (max-width: 480px) {
+      .intro-card {
+        border-radius: 20px;
+      }
+      .hud-container {
+        width: calc(100% - 32px); /* Full width minus margins on tiny screens */
+        left: 16px;
+        bottom: 16px;
+      }
+      .selector-container {
+        top: 16px;
+      }
     }
   </style>
 </head>
@@ -307,9 +337,14 @@
     <div class="intro-card" id="intro-content">
       <h1 class="intro-title">Blow to Bloom</h1>
       <p class="intro-subtitle">
-        Tap anywhere on the screen to enable your microphone, then blow softly near your phone or device to nurture a glowing fractal flower.
+        A celestial fractal plant study.<br>
+        Nurture its growth with the warmth of your breath.
       </p>
-      <button class="btn" id="enable-btn">Tap Screen to Start</button>
+      <button class="btn" id="enable-btn">Enable Study</button>
+      <p class="intro-hint">
+        Best experienced with headphones/mic in a quiet space.<br>
+        No audio data is sent or saved.
+      </p>
       
       <!-- Hidden by default, shown if access is denied -->
       <div id="error-message"></div>
@@ -328,7 +363,7 @@
     <div class="hud-item">
       <span class="hud-label">Bloom</span>
       <div class="hud-bar-bg">
-        <div id="hud-bar-growth" class="hud-bar-fill" style="background: linear-gradient(90deg, #62de66, #f06595);"></div>
+        <div id="hud-bar-growth" class="hud-bar-fill" style="background: linear-gradient(90deg, #7d8c82, #dca796);"></div>
       </div>
     </div>
     <div class="hud-info">Tap canvas to recalibrate silence</div>
@@ -343,9 +378,9 @@
 
   <script>
     // --- SKETCH CONSTANTS & VARIABLES ---
-    let segments = [];             // Precomputed flower segments {p1, p2, t}
+    let segments = [];             // Precomputed flower segments {p1, p2, t, isStem, isBranch, isTwig}
     let scaleFactor = 1.0;         // Responsive scaling factor
-    let currentFlowerType = "dragon"; // "dragon" or "plant"
+    let currentFlowerType = "dragon"; // "dragon", "plant", or "lace"
     
     // Audio / Microphone Inputs
     let mic;                       // p5.AudioIn object
@@ -360,7 +395,12 @@
     let calibrationRing = null;    // Click feedback indicator
     
     // Aesthetic elements
-    let floatingOrnaments = [];    // Pre-calculated stars, circles, and dots
+    let floatingOrnaments = [];    // Pre-calculated background stars, crosses
+    let driftingFragments = [];    // Real-time drifting leaf/petal fragments
+    
+    // Plant bounding box dimensions (for absolute viewport scale adaptation)
+    let normMinX = 0, normMaxX = 0;
+    let normMinY = 0, normMaxY = 0;
     
     // L-System Configurations
     const flowerConfigs = {
@@ -395,34 +435,34 @@
       const canvas = createCanvas(windowWidth, windowHeight);
       canvas.parent('canvas-container');
       
-      // Compute flower segments once at start
+      // Compute flower L-system structure
       generateFlower(currentFlowerType);
       
-      // Scatter floating ornaments across the specimen card
+      // Scatter background celestial ornaments
       createOrnaments();
       
       // Initialize mic instance
       mic = new p5.AudioIn();
     }
 
-    // --- GENERATE FLOATING ORNAMENTS ---
+    // --- GENERATE FLOATING BACKGROUND ORNAMENTS ---
     function createOrnaments() {
       floatingOrnaments = [];
-      let types = ['star', 'circle', 'cross', 'dot'];
-      for (let i = 0; i < 20; i++) {
+      let types = ['star', 'cross', 'dot'];
+      for (let i = 0; i < 12; i++) {
         floatingOrnaments.push({
           type: random(types),
-          x: random(width * 0.08, width * 0.92),
-          y: random(height * 0.08, height * 0.92),
-          size: random(5, 12),
+          x: random(width * 0.1, width * 0.9),
+          y: random(height * 0.1, height * 0.9),
+          size: random(6, 11),
           phase: random(TWO_PI),
-          speed: random(0.008, 0.02),
+          speed: random(0.005, 0.015),
           rotation: random(TWO_PI)
         });
       }
     }
 
-    // --- GENERATE & NORMALIZE L-SYSTEM FLOWER SEGMENTS ---
+    // --- GENERATE, CLASSIFY & NORMALIZE L-SYSTEM PLANT SEGMENTS ---
     function generateFlower(type) {
       let config = flowerConfigs[type];
       let currentInstruction = config.axiom;
@@ -443,20 +483,33 @@
       // Trace coordinates using branch stack mechanics
       let rawSegments = [];
       let currentPos = createVector(0, 0);
-      let currentAngle = -HALF_PI; // Default pointing straight up
+      let currentAngle = -HALF_PI; // pointing straight up
       let angleDelta = radians(config.angle);
       let stepSize = 10;
       let stack = [];
       
-      for (let char of currentInstruction) {
+      for (let idx = 0; idx < currentInstruction.length; idx++) {
+        let char = currentInstruction[idx];
         if (char === 'F') {
           let nextPos = createVector(
             currentPos.x + cos(currentAngle) * stepSize,
             currentPos.y + sin(currentAngle) * stepSize
           );
+          
+          // Identify branch tips for plants (segments that precede a pop or terminate a path)
+          let isBranchTip = false;
+          if (type === 'plant') {
+            let lookAhead = currentInstruction.substring(idx + 1, idx + 8);
+            if (lookAhead.startsWith(']') || lookAhead.startsWith('-]') || lookAhead.startsWith('+]')) {
+              isBranchTip = true;
+            }
+          }
+          
           rawSegments.push({
             p1: currentPos.copy(),
-            p2: nextPos.copy()
+            p2: nextPos.copy(),
+            depth: stack.length,
+            isBranchTip: isBranchTip
           });
           currentPos = nextPos;
         } else if (char === '+') {
@@ -472,45 +525,148 @@
         }
       }
       
-      // Normalize coordinate system relative to base (p1 of first segment is (0,0))
-      let maxDist = 0.001;
+      // Find raw bounding box of L-system output
+      let minX = 0, maxX = 0;
+      let minY = 0, maxY = 0;
       for (let seg of rawSegments) {
-        let d1 = seg.p1.mag();
-        let d2 = seg.p2.mag();
-        if (d1 > maxDist) maxDist = d1;
-        if (d2 > maxDist) maxDist = d2;
+        minX = min(minX, seg.p1.x, seg.p2.x);
+        maxX = max(maxX, seg.p1.x, seg.p2.x);
+        minY = min(minY, seg.p1.y, seg.p2.y);
+        maxY = max(maxY, seg.p1.y, seg.p2.y);
       }
       
-      // Shift, normalize coordinates, and compute progress parameter (t)
+      let plantW = maxX - minX;
+      let plantH = maxY - minY;
+      if (plantW === 0) plantW = 0.001;
+      if (plantH === 0) plantH = 0.001;
+      
+      // Normalize coordinate system relative to plant height.
+      // This leaves coordinates relative to base (0,0) but fits exactly 1.0 unit in height.
       segments = rawSegments.map((seg, idx) => {
-        let p1 = seg.p1.copy().div(maxDist);
-        let p2 = seg.p2.copy().div(maxDist);
+        let p1 = seg.p1.copy().div(plantH);
+        let p2 = seg.p2.copy().div(plantH);
         return {
           p1: p1,
           p2: p2,
-          t: idx / rawSegments.length
+          t: idx / rawSegments.length,
+          depth: seg.depth,
+          isBranchTip: seg.isBranchTip
         };
       });
+      
+      // Update normalized bounding box bounds
+      normMinX = minX / plantH;
+      normMaxX = maxX / plantH;
+      normMinY = minY / plantH;
+      normMaxY = maxY / plantH;
+      
+      // Assign anatomical classifications (stem vs branch vs twig)
+      segments.forEach((seg, idx) => {
+        let isStem = false;
+        let isBranch = false;
+        let isTwig = false;
+        
+        if (type === 'plant') {
+          if (seg.depth === 0) {
+            isStem = true;
+          } else if (seg.depth <= 2) {
+            isBranch = true;
+          } else {
+            isTwig = true;
+          }
+        } else {
+          // for continuous paths like dragon / lace
+          if (seg.t < 0.22) {
+            isStem = true;
+          } else if (seg.t < 0.8) {
+            isBranch = true;
+          } else {
+            isTwig = true;
+          }
+        }
+        
+        seg.isStem = isStem;
+        seg.isBranch = isBranch;
+        seg.isTwig = isTwig;
+      });
+      
+      // Select 5 spaced segments to sprout large detailed leaves
+      let leafIndices = [];
+      let numLeaves = 5;
+      for (let j = 0; j < numLeaves; j++) {
+        let targetPct = 0.15 + (j / (numLeaves - 1)) * 0.6; // from 15% to 75% depth
+        let idx = floor(targetPct * segments.length);
+        if (idx >= 0 && idx < segments.length && !leafIndices.includes(idx)) {
+          leafIndices.push(idx);
+          segments[idx].leafInfo = {
+            size: random(25, 38),
+            side: (j % 2 === 0) ? 1 : -1,
+            motifType: j, // Cycles through motifs 0-4
+            angleOffset: random(0.3, 0.7) * ((j % 2 === 0) ? 1 : -1)
+          };
+        }
+      }
+      
+      // Find 3 segments to sprout smaller buds
+      let budIndices = [];
+      if (type === 'plant') {
+        let tips = [];
+        for (let idx = 0; idx < segments.length; idx++) {
+          if (segments[idx].isBranchTip) {
+            tips.push(idx);
+          }
+        }
+        if (tips.length > 0) {
+          let step = max(1, floor(tips.length / 3));
+          for (let k = 0; k < tips.length && budIndices.length < 3; k += step) {
+            let idx = tips[k];
+            if (!segments[idx].leafInfo) {
+              budIndices.push(idx);
+              segments[idx].budInfo = {
+                size: random(10, 14)
+              };
+            }
+          }
+        }
+      }
+      
+      // Fallback or for dragon/lace
+      if (budIndices.length < 3) {
+        let budPcts = [0.35, 0.58, 0.82];
+        for (let k = 0; k < budPcts.length; k++) {
+          let idx = floor(budPcts[k] * segments.length);
+          if (idx >= 0 && idx < segments.length && !segments[idx].leafInfo && !segments[idx].budInfo) {
+            budIndices.push(idx);
+            segments[idx].budInfo = {
+              size: random(10, 14)
+            };
+          }
+        }
+      }
     }
 
     // --- MAIN RENDER LOOP ---
     function draw() {
-      // Light warm cream background (minimal trails for art print clarity)
-      background(244, 241, 234, 180);
+      // Light warm cream background
+      background(245, 242, 235);
       
-      // Calculate responsive scale factor (keeps entire curve on screen)
-      scaleFactor = min(width, height) * 0.42;
+      // Draw soft watercolor background mists
+      noStroke();
+      fill(217, 184, 184, 12); // Faded pink wash
+      ellipse(width * 0.75, height * 0.25, width * 0.5, width * 0.5);
       
-      // Asymmetric anchors - offset to the left for a specimen card layout
-      let centerX = width * 0.42;
-      let centerY = height * 0.52;
+      fill(159, 161, 134, 10); // Pale olive wash
+      ellipse(width * 0.25, height * 0.75, width * 0.6, width * 0.6);
       
-      // Shift base anchor down for upward growing structures
-      if (currentFlowerType === 'plant') {
-        centerY = height * 0.65;
-      } else if (currentFlowerType === 'lace') {
-        centerY = height * 0.62; // Shift slightly down since Sierpinski arrowhead grows upwards
-      }
+      fill(220, 167, 150, 8); // Muted coral wash
+      ellipse(width * 0.45, height * 0.5, width * 0.4, width * 0.4);
+      
+      // Calculate responsive scale factor (plant occupies exactly 76% height)
+      scaleFactor = height * 0.76;
+      
+      // Position base anchor asymmetrically (offset to left, leaving space for card text)
+      let centerX = width * 0.42 - (normMinX + normMaxX) * 0.5 * scaleFactor;
+      let centerY = height * 0.5 - (normMinY + normMaxY) * 0.5 * scaleFactor;
       
       // Process Microphone level & update growth curves
       handleMicrophoneInput();
@@ -518,15 +674,14 @@
       // Draw specimen card thin borders and archival texts
       drawSpecimenFrame();
       
-      // Draw background glows (very soft pastel hazes, highly transparent)
-      drawAmbientBacklight(centerX, centerY);
-      
       // Draw floating stars and strange symbols in space
       drawOrnaments();
       
-      // Render generative flower layers
-      drawFlowerSkeleton(centerX, centerY);
-      drawTranslucentPetals(centerX, centerY);
+      // Render the plant segments (stems, leaves, buds, flowers)
+      drawPlant(centerX, centerY);
+      
+      // Update and draw drifting fragments
+      updateAndDrawFragments();
       
       // Click feedback ring
       drawCalibrationFeedback();
@@ -538,23 +693,24 @@
     // --- DRAW SPECIMEN FRAME & ARCHIVAL TEXT ---
     function drawSpecimenFrame() {
       // Thin delicate double frame
-      stroke(74, 72, 67, 40);
-      strokeWeight(1);
+      stroke(74, 72, 67, 45); // Charcoal with low opacity
+      strokeWeight(0.85);
       noFill();
       rect(30, 30, width - 60, height - 60, 4);
+      rect(34, 34, width - 68, height - 68, 2);
       
       // Archival text metadata
       noStroke();
-      fill(74, 72, 67, 160);
+      fill(74, 72, 67, 150);
       
-      // Serif titles
+      // Serif titles (Playfair Display)
       textFont('Playfair Display');
-      textSize(12);
+      textSize(11);
       textAlign(LEFT, TOP);
-      text("HERBARIUM ARCHIVE  //  SPECIMEN NO. 12", 48, 48);
+      text("CELESTIAL BOTANICALS  //  PLATE VII", 48, 48);
       
       textAlign(RIGHT, TOP);
-      text("COORDINATES: 42°32'N / 19°08'E", width - 48, 48);
+      text("INDEX SYSTEM: " + currentFlowerType.toUpperCase(), width - 48, 48);
       
       textAlign(LEFT, BOTTOM);
       let classification = "CLASSIFICATION: FRACTALIA SYSTEMA (SPIRAL)";
@@ -566,39 +722,36 @@
       text(classification, 48, height - 48);
       
       textAlign(RIGHT, BOTTOM);
-      let stageText = currentGrowth > 0.05 ? "STAGE: FULL BLOOM" : "STAGE: DORMANT // SEED FORM";
+      let stageText = currentGrowth > 0.05 ? "STAGE: EFFLORESCENCE" : "STAGE: DORMANT (SEMINA)";
       text(stageText, width - 48, height - 48);
     }
 
-    // --- DRAW FLOATING ASTRAL ORNAMENTS ---
+    // --- DRAW FLOATING BACKGROUND CELESTIAL ORNAMENTS ---
     function drawOrnaments() {
       for (let orn of floatingOrnaments) {
         let pulse = sin(frameCount * orn.speed + orn.phase);
-        let size = orn.size * (1.0 + pulse * 0.15 + breathEnergy * 0.3); // pulses with breath!
-        let opacity = map(pulse, -1, 1, 30, 110) + breathEnergy * 40;
+        let size = orn.size * (1.0 + pulse * 0.1 + breathEnergy * 0.2); // pulses with breath!
+        let opacity = map(pulse, -1, 1, 25, 75) + breathEnergy * 25;
         
-        stroke(74, 72, 67, opacity);
-        strokeWeight(0.8);
+        let col = (orn.type === 'star') ? color(207, 176, 104, opacity) : color(74, 72, 67, opacity * 0.8);
+        
+        stroke(col);
+        strokeWeight(0.75);
         noFill();
         
         push();
         translate(orn.x, orn.y);
-        rotate(orn.rotation + frameCount * (orn.speed * 0.08));
+        rotate(orn.rotation + frameCount * (orn.speed * 0.05));
         
         if (orn.type === 'star') {
           drawStar(0, 0, size);
-        } else if (orn.type === 'circle') {
-          ellipse(0, 0, size, size);
-          fill(74, 72, 67, opacity);
-          noStroke();
-          ellipse(0, 0, 1.5, 1.5);
         } else if (orn.type === 'cross') {
           line(-size / 2, 0, size / 2, 0);
           line(0, -size / 2, 0, size / 2);
         } else if (orn.type === 'dot') {
           noStroke();
-          fill(74, 72, 67, opacity * 0.7);
-          ellipse(0, 0, size * 0.3, size * 0.3);
+          fill(red(col), green(col), blue(col), opacity);
+          ellipse(0, 0, 2, 2);
         }
         pop();
       }
@@ -643,198 +796,534 @@
       }
       
       // Add subtle constant breathing oscillation even at rest
-      let idleBreathe = sin(frameCount * 0.02) * 0.003;
+      let idleBreathe = sin(frameCount * 0.025) * 0.003;
       currentGrowth = constrain(currentGrowth + idleBreathe, 0, 1);
     }
 
-    // --- AMBIENT BACKLIGHTS & GLOWS (SOFT PASTEL MISTS) ---
-    function drawAmbientBacklight(cx, cy) {
-      push();
-      translate(cx, cy);
-      
-      // Soft breathing aura size based on current bloom state
-      let glowSize = currentGrowth * scaleFactor * 1.3;
-      
-      noStroke();
-      
-      // Soft pastel peach haze
-      fill(253, 215, 195, 12); 
-      ellipse(0, 0, scaleFactor * 1.5 + glowSize, scaleFactor * 1.5 + glowSize);
-      
-      // Soft pastel blue haze
-      fill(204, 229, 244, 10); 
-      ellipse(0, 0, scaleFactor * 0.9 + glowSize * 0.7, scaleFactor * 0.9 + glowSize * 0.7);
-      
-      pop();
-    }
-
-    // --- DRAW FLOWER SKELETON (THIN PENCIL CURVES) ---
-    function drawFlowerSkeleton(cx, cy) {
+    // --- DRAW THE PLANT COMPONENTS (SKELETON & TEXTURES) ---
+    function drawPlant(cx, cy) {
       let visibleCount = floor(segments.length * currentGrowth);
       if (visibleCount < 1) return;
       
       push();
       translate(cx, cy);
       
-      // Draw path segment-by-segment using bezier curves for painterly, flowing brush strokes
+      // 1. Draw Stems, Branches, and Twigs (skeleton lines)
       for (let i = 0; i < visibleCount; i++) {
         let seg = segments[i];
-        let p1 = seg.p1;
-        let p2 = seg.p2;
         
-        // Add low-frequency noise wobble for hand-illustrated organic movement (slower, smoother)
-        let wobbleX1 = noise(p1.x * 2.0, p1.y * 2.0, frameCount * 0.001) * 4 - 2;
-        let wobbleY1 = noise(p1.x * 2.0, p1.y * 2.0 + 10, frameCount * 0.001) * 4 - 2;
-        let wobbleX2 = noise(p2.x * 2.0, p2.y * 2.0, frameCount * 0.001) * 4 - 2;
-        let wobbleY2 = noise(p2.x * 2.0, p2.y * 2.0 + 10, frameCount * 0.001) * 4 - 2;
+        // Calculate organic wind sway using magnitude to keep base still
+        let swayStrength = map(currentGrowth, 0, 1, 1.2, 3.2) + breathEnergy * 6.0;
         
-        let x1 = p1.x * scaleFactor + wobbleX1;
-        let y1 = p1.y * scaleFactor + wobbleY1;
-        let x2 = p2.x * scaleFactor + wobbleX2;
-        let y2 = p2.y * scaleFactor + wobbleY2;
+        let swayX1 = sin(frameCount * 0.012 + seg.p1.y * 4.0) * seg.p1.mag() * swayStrength;
+        let swayY1 = cos(frameCount * 0.015 + seg.p1.x * 4.0) * seg.p1.mag() * (swayStrength * 0.35);
+        let swayX2 = sin(frameCount * 0.012 + seg.p2.y * 4.0) * seg.p2.mag() * swayStrength;
+        let swayY2 = cos(frameCount * 0.015 + seg.p2.x * 4.0) * seg.p2.mag() * (swayStrength * 0.35);
         
-        // Midpoint with extra noise displacement to create curves (smoother wobble)
-        let xc = (x1 + x2) / 2 + noise(p1.x * 4.0, p1.y * 4.0, frameCount * 0.001) * 6 - 3;
-        let yc = (y1 + y2) / 2 + noise(p1.x * 4.0, p1.y * 4.0 + 20, frameCount * 0.001) * 6 - 3;
+        let x1 = seg.p1.x * scaleFactor + swayX1;
+        let y1 = seg.p1.y * scaleFactor + swayY1;
+        let x2 = seg.p2.x * scaleFactor + swayX2;
+        let y2 = seg.p2.y * scaleFactor + swayY2;
         
-        let col = getAestheticColor(seg.t);
+        let weight, col, alpha;
+        if (seg.isStem) {
+          weight = map(seg.t, 0, 0.25, 4.2, 2.5); // Thicker main stem
+          col = color(125, 140, 130); // Gray-green
+          alpha = 180;
+        } else if (seg.isBranch) {
+          weight = map(seg.t, 0.25, 0.8, 2.5, 1.2); // Secondary branches
+          col = color(159, 161, 134); // Pale olive
+          alpha = 160;
+        } else {
+          weight = 0.9; // Twigs
+          col = color(207, 176, 104); // Old gold
+          alpha = 140;
+        }
         
-        // 1. Very faint watercolor backdrop vine stroke (pastel shadow)
-        noFill();
-        stroke(col.levels[0], col.levels[1], col.levels[2], 26);
-        strokeWeight(6.0); 
-        beginShape();
-        vertex(x1, y1);
-        quadraticVertex(xc, yc, x2, y2);
-        endShape();
-        
-        // 2. Primary thin charcoal pencil stroke
-        stroke(74, 72, 67, 150); 
-        strokeWeight(0.9); 
-        beginShape();
-        vertex(x1, y1);
-        quadraticVertex(xc, yc, x2, y2);
-        endShape();
+        // Draw the textured sketch pencil line
+        drawPencilLine(x1, y1, x2, y2, weight, alpha, col, i);
+      }
+      
+      // 2. Draw Leaves (after stems, but before flowers/buds for correct depth)
+      for (let i = 0; i < visibleCount; i++) {
+        let seg = segments[i];
+        if (seg.leafInfo) {
+          let swayStrength = map(currentGrowth, 0, 1, 1.2, 3.2) + breathEnergy * 6.0;
+          let swayX2 = sin(frameCount * 0.012 + seg.p2.y * 4.0) * seg.p2.mag() * swayStrength;
+          let swayY2 = cos(frameCount * 0.015 + seg.p2.x * 4.0) * seg.p2.mag() * (swayStrength * 0.35);
+          
+          let x2 = seg.p2.x * scaleFactor + swayX2;
+          let y2 = seg.p2.y * scaleFactor + swayY2;
+          
+          let angle = atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
+          
+          // Draw leaf with its unique interior motif
+          drawDetailedLeaf(x2, y2, seg.leafInfo.size, seg.leafInfo.size * 0.58, angle + seg.leafInfo.angleOffset, seg.leafInfo.motifType, i, currentGrowth);
+        }
+      }
+      
+      // 3. Draw Buds (spaced tips)
+      for (let i = 0; i < visibleCount; i++) {
+        let seg = segments[i];
+        if (seg.budInfo && i !== visibleCount - 1) {
+          let swayStrength = map(currentGrowth, 0, 1, 1.2, 3.2) + breathEnergy * 6.0;
+          let swayX2 = sin(frameCount * 0.012 + seg.p2.y * 4.0) * seg.p2.mag() * swayStrength;
+          let swayY2 = cos(frameCount * 0.015 + seg.p2.x * 4.0) * seg.p2.mag() * (swayStrength * 0.35);
+          
+          let x2 = seg.p2.x * scaleFactor + swayX2;
+          let y2 = seg.p2.y * scaleFactor + swayY2;
+          
+          drawBud(x2, y2, seg.budInfo.size, currentGrowth);
+        }
+      }
+      
+      // 4. Draw Blossoms or Growing Buds at active tips
+      let tipSeg = segments[visibleCount - 1];
+      let swayStrength = map(currentGrowth, 0, 1, 1.2, 3.2) + breathEnergy * 6.0;
+      let swayX2 = sin(frameCount * 0.012 + tipSeg.p2.y * 4.0) * tipSeg.p2.mag() * swayStrength;
+      let swayY2 = cos(frameCount * 0.015 + tipSeg.p2.x * 4.0) * tipSeg.p2.mag() * (swayStrength * 0.35);
+      
+      let tx = tipSeg.p2.x * scaleFactor + swayX2;
+      let ty = tipSeg.p2.y * scaleFactor + swayY2;
+      
+      if (visibleCount === segments.length) {
+        // fully bloomed
+        drawMainBlossom(tx, ty, 68, currentGrowth, breathEnergy);
+      } else {
+        // active growing tip
+        drawBud(tx, ty, 15, currentGrowth);
       }
       
       pop();
     }
 
-    // --- DRAW TRANSLUCENT NEON PETALS (WATERCOLOR LEAF WASHES) ---
-    function drawTranslucentPetals(cx, cy) {
-      let visibleCount = floor(segments.length * currentGrowth);
-      if (visibleCount < 1) return;
+    // --- DRAW TEXTURED SKETCH PENCIL LINES ---
+    function drawPencilLine(x1, y1, x2, y2, weight, alpha, col, index) {
+      let steps = (weight > 1.5) ? 3 : 2; // layers of lines to simulate graphite
       
       push();
-      translate(cx, cy);
+      noFill();
       
-      let step = 5; 
+      for (let s = 0; s < steps; s++) {
+        // Seeded offset to create wobbly textures that do NOT jitter on screen
+        let offsetSeed = index * 13.7 + s * 43.1;
+        let ox1 = (noise(offsetSeed) - 0.5) * (weight * 0.7);
+        let oy1 = (noise(offsetSeed + 10) - 0.5) * (weight * 0.7);
+        let ox2 = (noise(offsetSeed + 20) - 0.5) * (weight * 0.7);
+        let oy2 = (noise(offsetSeed + 30) - 0.5) * (weight * 0.7);
+        
+        stroke(red(col), green(col), blue(col), alpha * (s === 0 ? 0.8 : 0.45));
+        strokeWeight(weight * (s === 0 ? 1.0 : 0.8) * random(0.8, 1.0));
+        
+        let mx = (x1 + x2) / 2 + (noise(offsetSeed + 40) - 0.5) * (weight * 1.5);
+        let my = (y1 + y2) / 2 + (noise(offsetSeed + 50) - 0.5) * (weight * 1.5);
+        
+        beginShape();
+        vertex(x1 + ox1, y1 + oy1);
+        quadraticVertex(mx, my, x2 + ox2, y2 + oy2);
+        endShape();
+      }
+      pop();
+    }
+
+    // --- DRAW BOTANICAL LEAVES WITH INTERNAL MOTIFS ---
+    function drawDetailedLeaf(x, y, w, h, angle, motifType, index, growth) {
+      if (growth < 0.1) return;
       
-      for (let i = 0; i < visibleCount; i += step) {
-        let seg = segments[i];
-        let p = seg.p2;
-        
-        // Slower and smaller physical wind sway
-        let wobbleX = noise(p.x * 2.0 + 5, p.y * 2.0, frameCount * 0.001) * 4 - 2;
-        let wobbleY = noise(p.x * 2.0, p.y * 2.0 + 15, frameCount * 0.001) * 4 - 2;
-        
-        let sx = p.x * scaleFactor + wobbleX;
-        let sy = p.y * scaleFactor + wobbleY;
-        
-        // Large, delicate watercolor leaf shapes
-        let baseSize = map(seg.t, 0, 1, 14, 46) * (0.75 + currentGrowth * 0.35);
-        
-        // Breath oscillation for organic sway/pulse
-        let petalPulse = sin(frameCount * 0.04 + i * 0.12) * 3.5;
-        let petalW = baseSize + petalPulse;
-        let petalH = (baseSize + petalPulse) * 0.6; 
-        
-        // Orient the petal rotation along the curve segment tangent
-        let angle = atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
-        
-        push();
-        translate(sx, sy);
-        rotate(angle);
-        
-        let col = getAestheticColor(seg.t);
-        let outlineCol = lerpColor(col, color(74, 72, 67), 0.55); // Color-matched pencil outline
-        
-        // 1. Soft Pastel Glow Wash
+      let currentW = w * growth;
+      let currentH = h * growth;
+      
+      push();
+      translate(x, y);
+      rotate(angle);
+      
+      // Pick background colors from Palette 3: Gray-green or Pale olive
+      let baseColor = (index % 2 === 0) ? color(125, 140, 130, 25) : color(159, 161, 134, 25);
+      
+      // 1. Soft watercolor wash fill
+      noStroke();
+      for (let s = 0; s < 3; s++) {
+        fill(red(baseColor), green(baseColor), blue(baseColor), 16 - s * 3);
+        let ox = (noise(index * 5 + s) - 0.5) * 4;
+        let oy = (noise(index * 5 + s + 10) - 0.5) * 4;
+        let sw = currentW * (1.0 - s * 0.05);
+        let sh = currentH * (1.0 - s * 0.05);
+        drawLeafShapeGeometry(ox, oy, sw, sh);
+      }
+      
+      // 2. Sketchy charcoal outlines
+      noFill();
+      stroke(74, 72, 67, 100); // Muted charcoal
+      strokeWeight(0.8);
+      for (let s = 0; s < 2; s++) {
+        let ox = (noise(index * 7 + s) - 0.5) * 2;
+        let oy = (noise(index * 7 + s + 10) - 0.5) * 2;
+        drawLeafShapeGeometry(ox, oy, currentW, currentH);
+      }
+      
+      // 3. Draw internal motifs
+      stroke(74, 72, 67, 120);
+      strokeWeight(0.75);
+      
+      if (motifType === 0) {
+        // Motif 0: Fine linear veins
+        line(0, 0, currentW * 0.95, 0); // main vein
+        let numPairs = 4;
+        for (let j = 1; j <= numPairs; j++) {
+          let vx = currentW * (j / (numPairs + 1));
+          let vlen = currentH * 0.35 * (1 - (j / (numPairs + 1)));
+          line(vx, 0, vx + currentW * 0.1, -vlen);
+          line(vx, 0, vx + currentW * 0.1, vlen);
+        }
+      } 
+      else if (motifType === 1) {
+        // Motif 1: Celestial moon & stars
         noStroke();
-        fill(col.levels[0], col.levels[1], col.levels[2], 12);
-        ellipse(0, 0, petalW * 2.2, petalH * 2.2);
-        
-        // 2. Translucent leaf fill
-        fill(col.levels[0], col.levels[1], col.levels[2], 35);
-        drawLeafShape(0, 0, petalW, petalH);
-        
-        // 3. Delicate color-matched contour outline (static hand-drawn offset to avoid jittering)
-        noFill();
-        stroke(outlineCol.levels[0], outlineCol.levels[1], outlineCol.levels[2], 140);
-        strokeWeight(0.85);
-        
-        let sketchOffsetX = (noise(i * 0.7 + 10) * 2 - 1) * 1.5;
-        let sketchOffsetY = (noise(i * 0.7 + 20) * 2 - 1) * 1.5;
-        drawLeafShape(sketchOffsetX, sketchOffsetY, petalW, petalH);
-        
+        fill(207, 176, 104, 200 * growth); // Old gold moon
+        push();
+        translate(currentW * 0.45, 0);
+        rotate(-QUARTER_PI);
+        ellipse(0, 0, currentH * 0.35, currentH * 0.35);
+        fill(245, 242, 235); // Parchment background mask
+        ellipse(-currentH * 0.09, 0, currentH * 0.32, currentH * 0.32);
         pop();
+        
+        // Stars
+        fill(207, 176, 104, 220 * growth);
+        drawStar(currentW * 0.25, -currentH * 0.15, currentH * 0.08);
+        drawStar(currentW * 0.7, currentH * 0.12, currentH * 0.06);
+      } 
+      else if (motifType === 2) {
+        // Motif 2: Decorative dotted rows (Smoky plum)
+        noStroke();
+        fill(108, 91, 107, 180 * growth); // Smoky plum
+        let numDots = 6;
+        for (let j = 1; j <= numDots; j++) {
+          let dx = currentW * (j / (numDots + 1));
+          ellipse(dx, 0, 2, 2);
+          ellipse(dx, -currentH * 0.15 * sin(PI * (j / (numDots + 1))), 1.5, 1.5);
+          ellipse(dx, currentH * 0.15 * sin(PI * (j / (numDots + 1))), 1.5, 1.5);
+        }
+      } 
+      else if (motifType === 3) {
+        // Motif 3: Pastel watercolor spots (Muted coral)
+        noStroke();
+        fill(220, 167, 150, 45 * growth);
+        ellipse(currentW * 0.5, -currentH * 0.1, currentW * 0.32, currentH * 0.22);
+        fill(217, 184, 184, 45 * growth);
+        ellipse(currentW * 0.35, currentH * 0.08, currentW * 0.22, currentH * 0.18);
+      } 
+      else if (motifType === 4) {
+        // Motif 4: Gold inner silhouette
+        noStroke();
+        fill(207, 176, 104, 30 * growth); // Soft gold wash
+        drawLeafShapeGeometry(currentW * 0.12, 0, currentW * 0.68, currentH * 0.55);
+        noFill();
+        stroke(207, 176, 104, 140 * growth);
+        strokeWeight(0.68);
+        drawLeafShapeGeometry(currentW * 0.12, 0, currentW * 0.68, currentH * 0.55);
       }
       
       pop();
     }
 
-    // --- DRAW BOTANICAL LEAF GEOMETRY ---
-    function drawLeafShape(x, y, w, h) {
+    // --- LEAF SHAPE GEOMETRY GENERATOR ---
+    function drawLeafShapeGeometry(x, y, w, h) {
       push();
       translate(x, y);
       beginShape();
-      vertex(0, -h / 2);
-      bezierVertex(w / 2, -h / 4, w / 2, h / 4, 0, h / 2);
-      bezierVertex(-w / 2, h / 4, -w / 2, -h / 4, 0, -h / 2);
+      vertex(0, 0);
+      bezierVertex(w * 0.3, -h * 0.5, w * 0.7, -h * 0.5, w, 0);
+      bezierVertex(w * 0.7, h * 0.5, w * 0.3, h * 0.5, 0, 0);
       endShape(CLOSE);
       pop();
     }
 
-    // --- COLOR PALETTE GENERATOR (SOFT PASTELS) ---
-    function getAestheticColor(t) {
-      // blush pink, pale mint, butter yellow, soft peach, lavender, pale turquoise, light sky blue
-      let c1, c2;
+    // --- DRAW REACTIVE CELESTIAL BLOSSOM ---
+    function drawMainBlossom(x, y, maxSize, growth, breath) {
+      if (growth < 0.1) return;
       
-      if (t < 0.2) {
-        // Light sky blue -> Pale turquoise
-        let pct = map(t, 0, 0.2, 0, 1);
-        c1 = color(204, 229, 244);
-        c2 = color(194, 230, 233);
+      let currentSize = maxSize * growth * (0.85 + breath * 0.15);
+      
+      push();
+      translate(x, y);
+      
+      // Wind sway offset
+      let swayX = sin(frameCount * 0.035) * 1.5;
+      let swayY = cos(frameCount * 0.045) * 1.5;
+      translate(swayX, swayY);
+      
+      // How much the petals are currently opened
+      let bloomFactor = constrain(growth * 0.55 + breath * 0.45, 0, 1);
+      
+      // --- Layer 1: Outer Petals (Muted Coral) ---
+      let numOuter = 5;
+      let outerColor = color(220, 167, 150, 45); // Muted coral
+      let outerOutline = color(74, 72, 67, 120);
+      for (let j = 0; j < numOuter; j++) {
+        let angle = (TWO_PI / numOuter) * j + frameCount * 0.001;
+        let radialOffset = map(bloomFactor, 0, 1, currentSize * 0.1, currentSize * 0.35);
+        let px = cos(angle) * radialOffset;
+        let py = sin(angle) * radialOffset;
+        
+        push();
+        translate(px, py);
+        rotate(angle + HALF_PI);
+        
+        // Wash
+        noStroke();
+        fill(red(outerColor), green(outerColor), blue(outerColor), 35);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.38, currentSize * 0.58, bloomFactor);
+        
+        // Outline
+        noFill();
+        stroke(outerOutline);
+        strokeWeight(0.75);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.38, currentSize * 0.58, bloomFactor);
+        pop();
+      }
+      
+      // --- Layer 2: Middle Petals (Faded Pink) ---
+      let numMiddle = 5;
+      let middleColor = color(217, 184, 184, 55); // Faded pink
+      let middleOutline = color(74, 72, 67, 140);
+      for (let j = 0; j < numMiddle; j++) {
+        let angle = (TWO_PI / numMiddle) * j + (TWO_PI / numMiddle / 2) - frameCount * 0.0012;
+        let radialOffset = map(bloomFactor, 0, 1, currentSize * 0.08, currentSize * 0.22);
+        let px = cos(angle) * radialOffset;
+        let py = sin(angle) * radialOffset;
+        
+        push();
+        translate(px, py);
+        rotate(angle + HALF_PI);
+        
+        // Wash
+        noStroke();
+        fill(red(middleColor), green(middleColor), blue(middleColor), 55);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.28, currentSize * 0.44, bloomFactor * 0.9);
+        
+        // Outline
+        noFill();
+        stroke(middleOutline);
+        strokeWeight(0.8);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.28, currentSize * 0.44, bloomFactor * 0.9);
+        pop();
+      }
+      
+      // --- Layer 3: Inner Petals (Smoky Plum / Old Gold) ---
+      let numInner = 4;
+      let innerColor = color(108, 91, 107, 75); // Smoky plum
+      let innerOutline = color(207, 176, 104, 170); // Old gold accents
+      for (let j = 0; j < numInner; j++) {
+        let angle = (TWO_PI / numInner) * j + frameCount * 0.0018;
+        let radialOffset = map(bloomFactor, 0, 1, currentSize * 0.05, currentSize * 0.12);
+        let px = cos(angle) * radialOffset;
+        let py = sin(angle) * radialOffset;
+        
+        push();
+        translate(px, py);
+        rotate(angle + HALF_PI);
+        
+        // Wash
+        noStroke();
+        fill(red(innerColor), green(innerColor), blue(innerColor), 75);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.18, currentSize * 0.28, bloomFactor * 0.8);
+        
+        // Outline
+        noFill();
+        stroke(innerOutline);
+        strokeWeight(0.9);
+        drawPetalShapeGeometry(0, 0, currentSize * 0.18, currentSize * 0.28, bloomFactor * 0.8);
+        pop();
+      }
+      
+      // --- Center: Stamens (Old Gold filaments) ---
+      if (bloomFactor > 0.15) {
+        let numStamens = 8;
+        let stamenLength = map(bloomFactor, 0.15, 1, 4, currentSize * 0.26);
+        let stamenAlpha = map(bloomFactor, 0.15, 1, 0, 220);
+        
+        stroke(207, 176, 104, stamenAlpha); // Old gold
+        strokeWeight(0.75);
+        for (let j = 0; j < numStamens; j++) {
+          let angle = (TWO_PI / numStamens) * j + frameCount * 0.004;
+          let sx = cos(angle) * 3;
+          let sy = sin(angle) * 3;
+          let ex = cos(angle) * stamenLength;
+          let ey = sin(angle) * stamenLength;
+          
+          line(sx, sy, ex, ey);
+          
+          noStroke();
+          fill(207, 176, 104, stamenAlpha);
+          ellipse(ex, ey, 2.5, 2.5);
+          stroke(207, 176, 104, stamenAlpha);
+        }
+      }
+      
+      // Central seed node
+      noStroke();
+      fill(207, 176, 104, 220 * growth); // Old gold central stamen base
+      ellipse(0, 0, currentSize * 0.08, currentSize * 0.08);
+      
+      pop();
+    }
+
+    // --- PETAL GEOMETRY GENERATOR ---
+    function drawPetalShapeGeometry(x, y, w, h, bloomFactor) {
+      push();
+      translate(x, y);
+      beginShape();
+      vertex(0, 0);
+      let flare = map(bloomFactor, 0, 1, w * 0.2, w * 0.65);
+      let lengthFactor = h * 0.9;
+      bezierVertex(-flare, -lengthFactor * 0.4, -w * 0.5, -lengthFactor * 0.85, 0, -h);
+      bezierVertex(w * 0.5, -lengthFactor * 0.85, flare, -lengthFactor * 0.4, 0, 0);
+      endShape(CLOSE);
+      pop();
+    }
+
+    // --- DRAW BRANCH BUDS ---
+    function drawBud(x, y, maxSize, growth) {
+      if (growth < 0.1) return;
+      
+      let currentSize = maxSize * growth;
+      
+      push();
+      translate(x, y);
+      
+      let col = color(217, 184, 184, 180); // Faded pink
+      let outlineCol = color(74, 72, 67, 140);
+      
+      // Wash
+      noStroke();
+      fill(red(col), green(col), blue(col), 50);
+      ellipse(0, -currentSize * 0.4, currentSize * 0.65, currentSize * 0.9);
+      
+      // Sepal outline structure
+      noFill();
+      stroke(outlineCol);
+      strokeWeight(0.8);
+      
+      beginShape();
+      vertex(-currentSize * 0.15, 0);
+      bezierVertex(-currentSize * 0.35, -currentSize * 0.35, -currentSize * 0.18, -currentSize * 0.85, 0, -currentSize);
+      endShape();
+      
+      beginShape();
+      vertex(currentSize * 0.15, 0);
+      bezierVertex(currentSize * 0.35, -currentSize * 0.35, currentSize * 0.18, -currentSize * 0.85, 0, -currentSize);
+      endShape();
+      
+      // Pale green sepals wrapping base
+      fill(159, 161, 134, 180); // Pale olive
+      stroke(outlineCol);
+      beginShape();
+      vertex(-currentSize * 0.18, 0);
+      bezierVertex(-currentSize * 0.25, -currentSize * 0.18, 0, -currentSize * 0.25, 0, -currentSize * 0.4);
+      bezierVertex(0, -currentSize * 0.25, currentSize * 0.25, -currentSize * 0.18, currentSize * 0.18, 0);
+      endShape(CLOSE);
+      
+      pop();
+    }
+
+    // --- UPDATE AND RENDER DRIFTING FRAGMENTS ---
+    function updateAndDrawFragments() {
+      // Spawn new drifting segments when breath velocity is high
+      if (isAudioActive && breathEnergy > 0.18 && random() < 0.14) {
+        let visibleCount = floor(segments.length * currentGrowth);
+        if (visibleCount > 5) {
+          // Select a random visible segment node
+          let spawnSeg = segments[floor(random(visibleCount * 0.4, visibleCount))];
+          let swayStrength = map(currentGrowth, 0, 1, 1.2, 3.2) + breathEnergy * 6.0;
+          let swayX = sin(frameCount * 0.012 + spawnSeg.p2.y * 4.0) * spawnSeg.p2.mag() * swayStrength;
+          let swayY = cos(frameCount * 0.015 + spawnSeg.p2.x * 4.0) * spawnSeg.p2.mag() * (swayStrength * 0.35);
+          
+          let sx = spawnSeg.p2.x * scaleFactor + swayX + (width * 0.42 - (normMinX + normMaxX) * 0.5 * scaleFactor);
+          let sy = spawnSeg.p2.y * scaleFactor + swayY + (height * 0.5 - (normMinY + normMaxY) * 0.5 * scaleFactor);
+          
+          driftingFragments.push({
+            x: sx,
+            y: sy,
+            vx: random(-1.2, 1.2) + (breathEnergy * random(1.2, 2.5)),
+            vy: random(0.6, 1.8) + (breathEnergy * random(1.0, 2.0)),
+            size: random(5, 9),
+            angle: random(TWO_PI),
+            rotSpeed: random(-0.04, 0.04),
+            color: random([color(217, 184, 184), color(220, 167, 150), color(207, 176, 104)]), // Pink, Coral, Gold
+            alpha: 190,
+            swayPhase: random(TWO_PI),
+            swaySpeed: random(0.02, 0.06),
+            swayAmt: random(1.2, 2.8)
+          });
+        }
+      }
+      
+      // Update and draw active fragments
+      for (let i = driftingFragments.length - 1; i >= 0; i--) {
+        let f = driftingFragments[i];
+        
+        // Physics update
+        f.x += f.vx + sin(frameCount * f.swaySpeed + f.swayPhase) * f.swayAmt * 0.25;
+        f.y += f.vy;
+        f.angle += f.rotSpeed;
+        f.alpha -= 1.4; // fade rate
+        
+        if (f.y > height || f.x < 0 || f.x > width || f.alpha <= 0) {
+          driftingFragments.splice(i, 1);
+          continue;
+        }
+        
+        // Render
+        push();
+        translate(f.x, f.y);
+        rotate(f.angle);
+        
+        // Watercolor fill wash
+        noStroke();
+        fill(red(f.color), green(f.color), blue(f.color), f.alpha * 0.28);
+        ellipse(0, 0, f.size * 1.4, f.size * 0.8);
+        
+        // Charcoal sketch outline
+        stroke(74, 72, 67, f.alpha * 0.45);
+        strokeWeight(0.75);
+        noFill();
+        beginShape();
+        for (let a = 0; a < TWO_PI; a += 0.6) {
+          let r = f.size * 0.5 + (noise(a * 2.0 + f.size) - 0.5) * 1.2;
+          vertex(cos(a) * r * 1.4, sin(a) * r * 0.8);
+        }
+        endShape(CLOSE);
+        pop();
+      }
+    }
+
+    // --- PALETTE 3 GRADIENT TRANSITION ---
+    function getAestheticColor(t) {
+      let c1, c2;
+      if (t < 0.25) {
+        // Base main stem: Gray-green -> Pale olive
+        let pct = map(t, 0, 0.25, 0, 1);
+        c1 = color(125, 140, 130);
+        c2 = color(159, 161, 134);
         return lerpColor(c1, c2, pct);
-      } else if (t < 0.4) {
-        // Pale turquoise -> Pale mint
-        let pct = map(t, 0.2, 0.4, 0, 1);
-        c1 = color(194, 230, 233);
-        c2 = color(197, 233, 214);
-        return lerpColor(c1, c2, pct);
-      } else if (t < 0.6) {
-        // Pale mint -> Butter yellow
-        let pct = map(t, 0.4, 0.6, 0, 1);
-        c1 = color(197, 233, 214);
-        c2 = color(253, 240, 189);
+      } else if (t < 0.55) {
+        // Branches: Pale olive -> Faded pink
+        let pct = map(t, 0.25, 0.55, 0, 1);
+        c1 = color(159, 161, 134);
+        c2 = color(217, 184, 184);
         return lerpColor(c1, c2, pct);
       } else if (t < 0.8) {
-        // Butter yellow -> Soft peach
-        let pct = map(t, 0.6, 0.8, 0, 1);
-        c1 = color(253, 240, 189);
-        c2 = color(253, 215, 195);
-        return lerpColor(c1, c2, pct);
-      } else if (t < 0.9) {
-        // Soft peach -> Blush pink
-        let pct = map(t, 0.8, 0.9, 0, 1);
-        c1 = color(253, 215, 195);
-        c2 = color(243, 198, 203);
+        // Twigs & Buds: Faded pink -> Muted coral
+        let pct = map(t, 0.55, 0.8, 0, 1);
+        c1 = color(217, 184, 184);
+        c2 = color(220, 167, 150);
         return lerpColor(c1, c2, pct);
       } else {
-        // Blush pink -> Lavender
-        let pct = map(t, 0.9, 1.0, 0, 1);
-        c1 = color(243, 198, 203);
-        c2 = color(222, 211, 238);
+        // Blossom: Muted coral -> Smoky plum
+        let pct = map(t, 0.8, 1.0, 0, 1);
+        c1 = color(220, 167, 150);
+        c2 = color(108, 91, 107);
         return lerpColor(c1, c2, pct);
       }
     }
@@ -844,7 +1333,7 @@
       if (currentFlowerType === type) return;
       currentFlowerType = type;
       
-      // Update UI button states
+      // Update UI button active states
       document.querySelectorAll('.selector-btn').forEach(btn => btn.classList.remove('active'));
       if (type === 'dragon') {
         document.querySelector('.selector-btn:nth-child(1)').classList.add('active');
@@ -854,31 +1343,34 @@
         document.querySelector('.selector-btn:nth-child(3)').classList.add('active');
       }
       
-      // Regenerate L-system flower segments
+      // Clear live fragments
+      driftingFragments = [];
+      
+      // Regenerate L-system structures
       generateFlower(type);
       
-      // Reset growth state for transition animation
+      // Reset growth status for transition animation
       currentGrowth = 0.0;
     }
 
-    // --- CLICK-TO-CALIBRATE FEEDBACK ---
+    // --- CLICK-TO-CALIBRATE HUD FEEDBACK ---
     function drawCalibrationFeedback() {
       if (calibrationRing) {
         noFill();
-        stroke(253, 240, 189, calibrationRing.alpha); // Pastel butter yellow ring
-        strokeWeight(1.5);
+        stroke(207, 176, 104, calibrationRing.alpha); // Old gold ring
+        strokeWeight(1.2);
         ellipse(calibrationRing.x, calibrationRing.y, calibrationRing.radius, calibrationRing.radius);
         
         noStroke();
-        fill(74, 72, 67, calibrationRing.alpha); // Charcoal text color
+        fill(74, 72, 67, calibrationRing.alpha); // Charcoal text
         textAlign(CENTER, CENTER);
         textFont('Playfair Display');
-        textSize(12);
-        text("Silence Calibrated", calibrationRing.x, calibrationRing.y - 22);
+        textSize(11);
+        text("Acoustic Floor Calibrated", calibrationRing.x, calibrationRing.y - 18);
         
         // Smoothly expand and fade ring out
-        calibrationRing.radius = lerp(calibrationRing.radius, calibrationRing.maxRadius, 0.1);
-        calibrationRing.alpha = lerp(calibrationRing.alpha, 0, 0.12);
+        calibrationRing.radius = lerp(calibrationRing.radius, calibrationRing.maxRadius, 0.08);
+        calibrationRing.alpha = lerp(calibrationRing.alpha, 0, 0.1);
         
         if (calibrationRing.alpha < 2) {
           calibrationRing = null;
@@ -897,7 +1389,7 @@
     function recalibrateFloor(x, y) {
       let currentLevel = mic ? mic.getLevel() : 0.01;
       
-      // Set noise floor to current volume plus small buffer (safeguard against static background noise)
+      // Set noise floor to current volume plus small buffer
       noiseFloor = max(0.005, currentLevel + 0.006);
       
       // Trigger expanding circular feedback ring
@@ -947,7 +1439,6 @@
 
     // --- MICROPHONE PERMISSION INITIALIZATION ---
     function initializeAudio() {
-      // Guard against multiple concurrent initialization runs
       if (isAudioActive || isInitializing) return;
       isInitializing = true;
 
@@ -985,7 +1476,7 @@
         <h3>Microphone Access Blocked</h3>
         <p>This prototype needs microphone access to detect breath inputs and make the flower bloom.</p>
         <p style="margin: 8px 0; font-weight: 300;">Please check your browser settings: enable permission for this site, and click Try Again.</p>
-        <p style="margin-bottom: 12px; font-size: 0.8rem; color: rgba(255,255,255,0.4);">Note: Browsers restrict microphone access to 'localhost' or 'HTTPS' protocols on mobile devices.</p>
+        <p style="margin-bottom: 12px; font-size: 0.8rem; color: rgba(74, 72, 67, 0.65);">Note: Browsers restrict microphone access to 'localhost' or 'HTTPS' protocols on mobile devices.</p>
         <button class="btn" style="padding: 10px 24px; font-size: 0.9rem;" onclick="initializeAudio()">Try Again</button>
       `;
       errorDiv.style.display = 'block';
