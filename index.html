@@ -338,6 +338,7 @@
   <div id="flower-selector" class="selector-container">
     <button class="selector-btn active" onclick="switchFlower('dragon')">Dragon Spiral</button>
     <button class="selector-btn" onclick="switchFlower('plant')">Botanical Shrub</button>
+    <button class="selector-btn" onclick="switchFlower('lace')">Celestial Lace</button>
   </div>
 
   <script>
@@ -377,6 +378,15 @@
         },
         angle: 25,
         iterations: 5
+      },
+      lace: {
+        axiom: "YF",
+        rules: {
+          'X': "YF+XF+Y",
+          'Y': "XF-YF-X"
+        },
+        angle: 60,
+        iterations: 6
       }
     };
 
@@ -495,9 +505,11 @@
       let centerX = width * 0.42;
       let centerY = height * 0.52;
       
-      // Shift base anchor down for upward growing botanical plant
+      // Shift base anchor down for upward growing structures
       if (currentFlowerType === 'plant') {
         centerY = height * 0.65;
+      } else if (currentFlowerType === 'lace') {
+        centerY = height * 0.62; // Shift slightly down since Sierpinski arrowhead grows upwards
       }
       
       // Process Microphone level & update growth curves
@@ -545,7 +557,12 @@
       text("COORDINATES: 42°32'N / 19°08'E", width - 48, 48);
       
       textAlign(LEFT, BOTTOM);
-      let classification = currentFlowerType === 'dragon' ? "CLASSIFICATION: FRACTALIA SYSTEMA (SPIRAL)" : "CLASSIFICATION: FRACTALIA SYSTEMA (ARBOR)";
+      let classification = "CLASSIFICATION: FRACTALIA SYSTEMA (SPIRAL)";
+      if (currentFlowerType === 'plant') {
+        classification = "CLASSIFICATION: FRACTALIA SYSTEMA (ARBOR)";
+      } else if (currentFlowerType === 'lace') {
+        classification = "CLASSIFICATION: FRACTALIA SYSTEMA (RETICULUM)";
+      }
       text(classification, 48, height - 48);
       
       textAlign(RIGHT, BOTTOM);
@@ -665,20 +682,20 @@
         let p1 = seg.p1;
         let p2 = seg.p2;
         
-        // Add low-frequency noise wobble for hand-illustrated organic movement
-        let wobbleX1 = noise(p1.x * 2.0, p1.y * 2.0, frameCount * 0.004) * 12 - 6;
-        let wobbleY1 = noise(p1.x * 2.0, p1.y * 2.0 + 10, frameCount * 0.004) * 12 - 6;
-        let wobbleX2 = noise(p2.x * 2.0, p2.y * 2.0, frameCount * 0.004) * 12 - 6;
-        let wobbleY2 = noise(p2.x * 2.0, p2.y * 2.0 + 10, frameCount * 0.004) * 12 - 6;
+        // Add low-frequency noise wobble for hand-illustrated organic movement (slower, smoother)
+        let wobbleX1 = noise(p1.x * 2.0, p1.y * 2.0, frameCount * 0.001) * 4 - 2;
+        let wobbleY1 = noise(p1.x * 2.0, p1.y * 2.0 + 10, frameCount * 0.001) * 4 - 2;
+        let wobbleX2 = noise(p2.x * 2.0, p2.y * 2.0, frameCount * 0.001) * 4 - 2;
+        let wobbleY2 = noise(p2.x * 2.0, p2.y * 2.0 + 10, frameCount * 0.001) * 4 - 2;
         
         let x1 = p1.x * scaleFactor + wobbleX1;
         let y1 = p1.y * scaleFactor + wobbleY1;
         let x2 = p2.x * scaleFactor + wobbleX2;
         let y2 = p2.y * scaleFactor + wobbleY2;
         
-        // Midpoint with extra noise displacement to create curves
-        let xc = (x1 + x2) / 2 + noise(p1.x * 4.0, p1.y * 4.0, frameCount * 0.006) * 16 - 8;
-        let yc = (y1 + y2) / 2 + noise(p1.x * 4.0, p1.y * 4.0 + 20, frameCount * 0.006) * 16 - 8;
+        // Midpoint with extra noise displacement to create curves (smoother wobble)
+        let xc = (x1 + x2) / 2 + noise(p1.x * 4.0, p1.y * 4.0, frameCount * 0.001) * 6 - 3;
+        let yc = (y1 + y2) / 2 + noise(p1.x * 4.0, p1.y * 4.0 + 20, frameCount * 0.001) * 6 - 3;
         
         let col = getAestheticColor(seg.t);
         
@@ -717,8 +734,9 @@
         let seg = segments[i];
         let p = seg.p2;
         
-        let wobbleX = noise(p.x * 2.0 + 5, p.y * 2.0, frameCount * 0.004) * 12 - 6;
-        let wobbleY = noise(p.x * 2.0, p.y * 2.0 + 15, frameCount * 0.004) * 12 - 6;
+        // Slower and smaller physical wind sway
+        let wobbleX = noise(p.x * 2.0 + 5, p.y * 2.0, frameCount * 0.001) * 4 - 2;
+        let wobbleY = noise(p.x * 2.0, p.y * 2.0 + 15, frameCount * 0.001) * 4 - 2;
         
         let sx = p.x * scaleFactor + wobbleX;
         let sy = p.y * scaleFactor + wobbleY;
@@ -739,6 +757,7 @@
         rotate(angle);
         
         let col = getAestheticColor(seg.t);
+        let outlineCol = lerpColor(col, color(74, 72, 67), 0.55); // Color-matched pencil outline
         
         // 1. Soft Pastel Glow Wash
         noStroke();
@@ -749,11 +768,14 @@
         fill(col.levels[0], col.levels[1], col.levels[2], 35);
         drawLeafShape(0, 0, petalW, petalH);
         
-        // 3. Delicate charcoal contour outline
+        // 3. Delicate color-matched contour outline (static hand-drawn offset to avoid jittering)
         noFill();
-        stroke(74, 72, 67, 100);
-        strokeWeight(0.7);
-        drawLeafShape(random(-0.5, 0.5), random(-0.5, 0.5), petalW, petalH);
+        stroke(outlineCol.levels[0], outlineCol.levels[1], outlineCol.levels[2], 140);
+        strokeWeight(0.85);
+        
+        let sketchOffsetX = (noise(i * 0.7 + 10) * 2 - 1) * 1.5;
+        let sketchOffsetY = (noise(i * 0.7 + 20) * 2 - 1) * 1.5;
+        drawLeafShape(sketchOffsetX, sketchOffsetY, petalW, petalH);
         
         pop();
       }
@@ -826,8 +848,10 @@
       document.querySelectorAll('.selector-btn').forEach(btn => btn.classList.remove('active'));
       if (type === 'dragon') {
         document.querySelector('.selector-btn:nth-child(1)').classList.add('active');
-      } else {
+      } else if (type === 'plant') {
         document.querySelector('.selector-btn:nth-child(2)').classList.add('active');
+      } else {
+        document.querySelector('.selector-btn:nth-child(3)').classList.add('active');
       }
       
       // Regenerate L-system flower segments
