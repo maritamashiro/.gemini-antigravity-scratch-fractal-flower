@@ -243,6 +243,55 @@
       margin-top: 2px;
       letter-spacing: 0.2px;
     }
+
+    /* Flower Selector Panel */
+    .selector-container {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 19, 25, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 50px;
+      padding: 6px;
+      z-index: 8;
+      display: flex;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 0;
+      transform: translate(-50%, -10px);
+      pointer-events: none;
+    }
+
+    .selector-container.visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+
+    .selector-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 10px 22px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
+    }
+
+    .selector-btn.active {
+      background: linear-gradient(135deg, #22b8cf 0%, #f06595 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(240, 101, 149, 0.25);
+    }
   </style>
 </head>
 <body>
@@ -285,10 +334,17 @@
     <div class="hud-info">Tap canvas to recalibrate silence</div>
   </div>
 
+  <!-- Flower Selector Panel -->
+  <div id="flower-selector" class="selector-container">
+    <button class="selector-btn active" onclick="switchFlower('dragon')">Dragon Spiral</button>
+    <button class="selector-btn" onclick="switchFlower('plant')">Botanical Shrub</button>
+  </div>
+
   <script>
     // --- SKETCH CONSTANTS & VARIABLES ---
-    let points = [];               // Precomputed Dragon Curve points
-    let scaleFactor = 1.0;        // Responsive scaling factor
+    let segments = [];             // Precomputed flower segments {p1, p2, t}
+    let scaleFactor = 1.0;         // Responsive scaling factor
+    let currentFlowerType = "dragon"; // "dragon" or "plant"
     
     // Audio / Microphone Inputs
     let mic;                       // p5.AudioIn object
@@ -300,18 +356,26 @@
     let targetGrowth = 0.0;        // Mapped breath goal (0.0 to 1.0)
     let currentGrowth = 0.0;       // Smoothly interpolated growth (0.0 to 1.0)
     let isAudioActive = false;     // True when mic starts successfully
-    
-    // Aesthetic elements
-    let particles = [];            // Spawning pollen sparkles
     let calibrationRing = null;    // Click feedback indicator
     let centerGlowSize = 0;        // Breathing radial background glow size
     
-    // L-System Rules: Dragon Curve
-    const iterations = 11;         // 2^11 = 2048 segments (perfect density)
-    const axiom = "FX";
-    const rules = {
-      'X': "X+YF+",
-      'Y': "-FX-Y"
+    // L-System Configurations
+    const flowerConfigs = {
+      dragon: {
+        axiom: "FX",
+        rules: { 'X': "X+YF+", 'Y': "-FX-Y" },
+        angle: 90,
+        iterations: 11
+      },
+      plant: {
+        axiom: "X",
+        rules: {
+          'X': "F+[[X]-X]-F[-FX]+X",
+          'F': "FF"
+        },
+        angle: 25,
+        iterations: 5
+      }
     };
 
     // --- SETUP & GENERATIVE COMPUTATION ---
@@ -319,22 +383,24 @@
       const canvas = createCanvas(windowWidth, windowHeight);
       canvas.parent('canvas-container');
       
-      // Compute the Dragon Curve L-System points once at startup
-      generateDragonCurve();
+      // Compute flower segments once at start
+      generateFlower(currentFlowerType);
       
-      // Initialize mic instance (do not start it yet)
+      // Initialize mic instance
       mic = new p5.AudioIn();
     }
 
-    // --- GENERATE & NORMALIZE DRAGON CURVE ---
-    function generateDragonCurve() {
-      // 1. Expand L-System instructions
-      let currentInstruction = axiom;
-      for (let i = 0; i < iterations; i++) {
+    // --- GENERATE & NORMALIZE L-SYSTEM FLOWER SEGMENTS ---
+    function generateFlower(type) {
+      let config = flowerConfigs[type];
+      let currentInstruction = config.axiom;
+      
+      // Expand L-System instructions
+      for (let i = 0; i < config.iterations; i++) {
         let next = "";
         for (let char of currentInstruction) {
-          if (rules[char]) {
-            next += rules[char];
+          if (config.rules[char]) {
+            next += config.rules[char];
           } else {
             next += char;
           }
@@ -342,58 +408,77 @@
         currentInstruction = next;
       }
       
-      // 2. Trace coordinates using turtle mechanics
-      let rawPoints = [];
+      // Trace coordinates using branch stack mechanics
+      let rawSegments = [];
       let currentPos = createVector(0, 0);
-      rawPoints.push(currentPos.copy());
-      
-      let currentAngle = 0;
-      let stepSize = 10; // Arbitrary unit, normalized later
+      let currentAngle = -HALF_PI; // Default pointing straight up
+      let angleDelta = radians(config.angle);
+      let stepSize = 10;
+      let stack = [];
       
       for (let char of currentInstruction) {
         if (char === 'F') {
-          currentPos.x += cos(currentAngle) * stepSize;
-          currentPos.y += sin(currentAngle) * stepSize;
-          rawPoints.push(currentPos.copy());
+          let nextPos = createVector(
+            currentPos.x + cos(currentAngle) * stepSize,
+            currentPos.y + sin(currentAngle) * stepSize
+          );
+          rawSegments.push({
+            p1: currentPos.copy(),
+            p2: nextPos.copy()
+          });
+          currentPos = nextPos;
         } else if (char === '+') {
-          currentAngle += HALF_PI; // Turn Right 90 degrees
+          currentAngle += angleDelta;
         } else if (char === '-') {
-          currentAngle -= HALF_PI; // Turn Left 90 degrees
+          currentAngle -= angleDelta;
+        } else if (char === '[') {
+          stack.push({ pos: currentPos.copy(), angle: currentAngle });
+        } else if (char === ']') {
+          let state = stack.pop();
+          currentPos = state.pos;
+          currentAngle = state.angle;
         }
       }
       
-      // 3. Center relative to start point and normalize max radius to 1.0
-      // Shifting points so the seed (point 0) remains anchored at (0,0)
-      let origin = rawPoints[0].copy();
-      let maxDist = 0.001; // Avoid division by zero
-      
-      for (let p of rawPoints) {
-        p.sub(origin);
-        let dist = p.mag();
-        if (dist > maxDist) {
-          maxDist = dist;
-        }
+      // Normalize coordinate system relative to base (p1 of first segment is (0,0))
+      let maxDist = 0.001;
+      for (let seg of rawSegments) {
+        let d1 = seg.p1.mag();
+        let d2 = seg.p2.mag();
+        if (d1 > maxDist) maxDist = d1;
+        if (d2 > maxDist) maxDist = d2;
       }
       
-      // Scale all points so they fall within a circle of radius 1.0 around the seed
-      for (let p of rawPoints) {
-        p.div(maxDist);
-      }
-      
-      points = rawPoints;
+      // Shift, normalize coordinates, and compute progress parameter (t)
+      segments = rawSegments.map((seg, idx) => {
+        let p1 = seg.p1.copy().div(maxDist);
+        let p2 = seg.p2.copy().div(maxDist);
+        return {
+          p1: p1,
+          p2: p2,
+          t: idx / rawSegments.length
+        };
+      });
     }
 
     // --- MAIN RENDER LOOP ---
     function draw() {
-      // Dark slate background with very slight trails for motion blur
-      background(18, 19, 25, 60);
+      // Dark slate background with very slight trails for watercolor blending
+      background(18, 19, 25, 45);
       
       // Calculate responsive scale factor (keeps entire curve on screen)
-      scaleFactor = min(width, height) * 0.43;
+      scaleFactor = min(width, height) * 0.44;
       
-      // Shift flower center slightly down and center-horizontal
+      // Center anchors
       let centerX = width / 2;
-      let centerY = height / 2 + (height * 0.05);
+      let centerY = height / 2;
+      
+      // Shift base anchor down for upward growing botanical plant
+      if (currentFlowerType === 'plant') {
+        centerY = height / 2 + (scaleFactor * 0.5);
+      } else {
+        centerY = height / 2 + (height * 0.05); // Centered/slightly offset
+      }
       
       // Process Microphone level & update growth curves
       handleMicrophoneInput();
@@ -405,11 +490,7 @@
       drawFlowerSkeleton(centerX, centerY);
       drawTranslucentPetals(centerX, centerY);
       
-      // Pulsing Seed/Bud at center
-      drawSeedBud(centerX, centerY);
-      
-      // Particles and interactive feedback
-      updatePollenParticles(centerX, centerY);
+      // Click feedback ring
       drawCalibrationFeedback();
       
       // Update floating HUD indicators
@@ -469,105 +550,122 @@
       pop();
     }
 
-    // --- DRAW FLOWER SKELETON (DRAGON CURVE) ---
+    // --- DRAW FLOWER SKELETON (BEZIER VINES) ---
     function drawFlowerSkeleton(cx, cy) {
-      let visibleCount = floor(points.length * currentGrowth);
-      if (visibleCount < 2) return;
+      let visibleCount = floor(segments.length * currentGrowth);
+      if (visibleCount < 1) return;
       
       push();
       translate(cx, cy);
       
-      // Draw path segment-by-segment to implement gradient colors and sketchy offsets
-      for (let i = 1; i < visibleCount; i++) {
-        let pPrev = points[i - 1];
-        let p = points[i];
+      // Draw path segment-by-segment using bezier curves for painterly, flowing brush strokes
+      for (let i = 0; i < visibleCount; i++) {
+        let seg = segments[i];
+        let p1 = seg.p1;
+        let p2 = seg.p2;
         
-        // Add low-frequency Perlin noise to coordinates for hand-illustrated wobble
-        let wobbleXPrev = noise(pPrev.x * 3.0, pPrev.y * 3.0, frameCount * 0.005) * 6 - 3;
-        let wobbleYPrev = noise(pPrev.x * 3.0, pPrev.y * 3.0 + 10, frameCount * 0.005) * 6 - 3;
-        let wobbleX = noise(p.x * 3.0, p.y * 3.0, frameCount * 0.005) * 6 - 3;
-        let wobbleY = noise(p.x * 3.0, p.y * 3.0 + 10, frameCount * 0.005) * 6 - 3;
+        // Add low-frequency noise wobble for hand-illustrated organic movement
+        let wobbleX1 = noise(p1.x * 2.0, p1.y * 2.0, frameCount * 0.004) * 16 - 8;
+        let wobbleY1 = noise(p1.x * 2.0, p1.y * 2.0 + 10, frameCount * 0.004) * 16 - 8;
+        let wobbleX2 = noise(p2.x * 2.0, p2.y * 2.0, frameCount * 0.004) * 16 - 8;
+        let wobbleY2 = noise(p2.x * 2.0, p2.y * 2.0 + 10, frameCount * 0.004) * 16 - 8;
         
-        let x1 = pPrev.x * scaleFactor + wobbleXPrev;
-        let y1 = pPrev.y * scaleFactor + wobbleYPrev;
-        let x2 = p.x * scaleFactor + wobbleX;
-        let y2 = p.y * scaleFactor + wobbleY;
+        let x1 = p1.x * scaleFactor + wobbleX1;
+        let y1 = p1.y * scaleFactor + wobbleY1;
+        let x2 = p2.x * scaleFactor + wobbleX2;
+        let y2 = p2.y * scaleFactor + wobbleY2;
         
-        // Color gradient along the length (cyan-blue -> green -> yellow -> magenta/pink)
-        let t = i / points.length;
-        let col = getAestheticColor(t);
+        // Midpoint with extra noise displacement to create curves
+        let xc = (x1 + x2) / 2 + noise(p1.x * 4.0, p1.y * 4.0, frameCount * 0.006) * 20 - 10;
+        let yc = (y1 + y2) / 2 + noise(p1.x * 4.0, p1.y * 4.0 + 20, frameCount * 0.006) * 20 - 10;
         
-        // Draw primary sketch stem line
-        stroke(col.levels[0], col.levels[1], col.levels[2], 100);
-        strokeWeight(1.8);
-        line(x1, y1, x2, y2);
+        let col = getAestheticColor(seg.t);
         
-        // Draw secondary offset stroke for a beautiful hand-sketched ink style
-        stroke(col.levels[0], col.levels[1], col.levels[2], 40);
-        strokeWeight(0.8);
-        line(x1 + 1.5, y1 - 1, x2 + 1.5, y2 - 1);
+        // 1. Thick, soft glowing watercolor backdrop vine stroke
+        noFill();
+        stroke(col.levels[0], col.levels[1], col.levels[2], 26);
+        strokeWeight(8.5); 
+        beginShape();
+        vertex(x1, y1);
+        quadraticVertex(xc, yc, x2, y2);
+        endShape();
+        
+        // 2. Primary sketch vine stroke (rich hand-drawn line weight)
+        stroke(col.levels[0], col.levels[1], col.levels[2], 130);
+        strokeWeight(3.5); 
+        beginShape();
+        vertex(x1, y1);
+        quadraticVertex(xc, yc, x2, y2);
+        endShape();
+        
+        // 3. Second sketchy highlight stroke (slightly offset for texture depth)
+        stroke(col.levels[0] + 30, col.levels[1] + 30, col.levels[2] + 30, 70);
+        strokeWeight(1.2);
+        beginShape();
+        vertex(x1 + 1.8, y1 - 1.8);
+        quadraticVertex(xc + 1.8, yc - 1.8, x2 + 1.8, y2 - 1.8);
+        endShape();
       }
       
       pop();
     }
 
-    // --- DRAW TRANSLUCENT NEON PETALS ---
+    // --- DRAW TRANSLUCENT NEON PETALS (WATERCOLOR WASHES) ---
     function drawTranslucentPetals(cx, cy) {
-      let visibleCount = floor(points.length * currentGrowth);
-      if (visibleCount < 2) return;
+      let visibleCount = floor(segments.length * currentGrowth);
+      if (visibleCount < 1) return;
       
       push();
       translate(cx, cy);
       
-      // Render a petal shape periodically along the curve
-      let step = 6; // Draw a petal every 6th node to preserve composition and performance
+      // Render a petal shape periodically along the segments
+      let step = 5; 
       
       for (let i = 0; i < visibleCount; i += step) {
-        let p = points[i];
+        let seg = segments[i];
+        let p = seg.p2;
         
-        let wobbleX = noise(p.x * 3.0 + 5, p.y * 3.0, frameCount * 0.005) * 6 - 3;
-        let wobbleY = noise(p.x * 3.0, p.y * 3.0 + 15, frameCount * 0.005) * 6 - 3;
+        let wobbleX = noise(p.x * 2.0 + 5, p.y * 2.0, frameCount * 0.004) * 12 - 6;
+        let wobbleY = noise(p.x * 2.0, p.y * 2.0 + 15, frameCount * 0.004) * 12 - 6;
         
         let sx = p.x * scaleFactor + wobbleX;
         let sy = p.y * scaleFactor + wobbleY;
         
-        let t = i / points.length;
-        
-        // Size scales down near stem base, larger and soft at blooming tips
-        let baseSize = map(t, 0, 1, 6, 26) * (0.8 + currentGrowth * 0.4);
+        // Big, poetic watercolor petals (scales up along the vine length)
+        let baseSize = map(seg.t, 0, 1, 14, 46) * (0.75 + currentGrowth * 0.35);
         
         // Breath oscillation for organic sway/pulse
-        let petalPulse = sin(frameCount * 0.05 + i * 0.15) * 2;
+        let petalPulse = sin(frameCount * 0.04 + i * 0.12) * 3.5;
         let petalW = baseSize + petalPulse;
-        let petalH = (baseSize + petalPulse) * 0.6; // Elongated petal
+        let petalH = (baseSize + petalPulse) * 0.65; 
         
         // Orient the petal rotation along the curve segment tangent
-        let angle = 0;
-        if (i < points.length - 1) {
-          let pNext = points[i + 1];
-          angle = atan2(pNext.y - p.y, pNext.x - p.x);
-        }
+        let angle = atan2(seg.p2.y - seg.p1.y, seg.p2.x - seg.p1.x);
         
         push();
         translate(sx, sy);
         rotate(angle);
         
-        let col = getAestheticColor(t);
+        let col = getAestheticColor(seg.t);
         
-        // 1. Soft Neon Aura/Glow
+        // 1. Large, Highly Translucent Glowing Wash
         noStroke();
-        fill(col.levels[0], col.levels[1], col.levels[2], 12);
-        ellipse(0, 0, petalW * 2.6, petalH * 2.6);
+        fill(col.levels[0], col.levels[1], col.levels[2], 10);
+        ellipse(0, 0, petalW * 2.5, petalH * 2.5);
         
-        // 2. Translucent Petal Fill
-        fill(col.levels[0], col.levels[1], col.levels[2], 45);
+        // 2. Soft Watercolor Overlay Fill
+        fill(col.levels[0], col.levels[1], col.levels[2], 26);
         ellipse(0, 0, petalW, petalH);
         
-        // 3. Delicate outline shifted slightly for the sketchy, hand-drawn look
+        // 3. Inner core accent shape
+        fill(col.levels[0] + 15, col.levels[1] + 15, col.levels[2] + 15, 15);
+        ellipse(0, 0, petalW * 0.55, petalH * 0.55);
+        
+        // 4. Sketchy outline shifted slightly for the hand-drawn look
         noFill();
-        stroke(col.levels[0] + 20, col.levels[1] + 20, col.levels[2] + 20, 120);
-        strokeWeight(0.9);
-        ellipse(random(-0.5, 0.5), random(-0.5, 0.5), petalW, petalH);
+        stroke(col.levels[0], col.levels[1], col.levels[2], 65);
+        strokeWeight(0.7);
+        ellipse(random(-1.0, 1.0), random(-1.0, 1.0), petalW, petalH);
         
         pop();
       }
@@ -575,102 +673,27 @@
       pop();
     }
 
-    // --- PULSING CENTRAL SEED / BUD ---
-    function drawSeedBud(cx, cy) {
-      push();
-      translate(cx, cy);
-      
-      // The seed fades out as the flower blooms
-      let seedOpacity = map(currentGrowth, 0, 0.25, 255, 0, true);
-      
-      if (seedOpacity > 0) {
-        // Natural seed breathing cycle
-        let pulse = sin(frameCount * 0.05) * 3;
-        let seedSize = (26 + pulse);
-        
-        // Inner gold core glow
-        noStroke();
-        fill(255, 224, 102, seedOpacity * 0.12);
-        ellipse(0, 0, seedSize * 2.2, seedSize * 2.2);
-        
-        // Glowing Bud body (layered watercolor styling)
-        fill(240, 101, 149, seedOpacity * 0.55); // Magenta base
-        stroke(255, 224, 102, seedOpacity * 0.85); // Glowing gold borders
-        strokeWeight(1.5);
-        
-        // Hand-drawn tear drop bud geometry
-        beginShape();
-        vertex(0, -seedSize / 2);
-        bezierVertex(seedSize * 0.6, -seedSize * 0.25, seedSize * 0.45, seedSize * 0.5, 0, seedSize * 0.5);
-        bezierVertex(-seedSize * 0.45, seedSize * 0.5, -seedSize * 0.6, -seedSize * 0.25, 0, -seedSize / 2);
-        endShape(CLOSE);
-        
-        // Core vertical texture line
-        stroke(255, 255, 255, seedOpacity * 0.4);
-        strokeWeight(1.0);
-        line(0, -seedSize / 2, 0, seedSize * 0.4);
-      }
-      
-      pop();
-    }
-
-    // --- POLLEN PARTICLES ON ACTIVE TIP ---
-    function updatePollenParticles(cx, cy) {
-      let visibleCount = floor(points.length * currentGrowth);
-      
-      // Only spawn pollen at the active tip when growing or fully bloomed
-      if (visibleCount > 0 && currentGrowth > 0.05) {
-        let tipIdx = max(0, visibleCount - 1);
-        let pTip = points[tipIdx];
-        
-        let tipX = cx + pTip.x * scaleFactor;
-        let tipY = cy + pTip.y * scaleFactor;
-        
-        // Spawn probability correlates with breath intensity
-        if (breathEnergy > 0.04 && random(1) < 0.25) {
-          let t = tipIdx / points.length;
-          let col = getAestheticColor(t);
-          particles.push(new Pollen(tipX + random(-5, 5), tipY + random(-5, 5), col));
-        }
-      }
-      
-      // Update and display active sparkles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.update();
-        p.display();
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-        }
-      }
-    }
-
     // --- COLOR PALETTE GENERATOR (NEON ACCENTS) ---
     function getAestheticColor(t) {
       // t loops from 0 (stem start) to 1 (blooming edges)
-      // Custom neon color nodes
       let c1, c2;
       
       if (t < 0.25) {
-        // Neon Blue/Cyan -> Lime Green
         let pct = map(t, 0, 0.25, 0, 1);
         c1 = color(34, 184, 207);  // Neon Cyan
         c2 = color(98, 222, 102);  // Lime Green
         return lerpColor(c1, c2, pct);
       } else if (t < 0.5) {
-        // Lime Green -> Glowing Yellow
         let pct = map(t, 0.25, 0.5, 0, 1);
         c1 = color(98, 222, 102);
         c2 = color(255, 224, 102); // Neon Yellow
         return lerpColor(c1, c2, pct);
       } else if (t < 0.75) {
-        // Glowing Yellow -> Vibrant Coral/Rose
         let pct = map(t, 0.5, 0.75, 0, 1);
         c1 = color(255, 224, 102);
         c2 = color(240, 62, 62);   // Sunset Coral
         return lerpColor(c1, c2, pct);
       } else {
-        // Coral -> Soft Neon Magenta
         let pct = map(t, 0.75, 1, 0, 1);
         c1 = color(240, 62, 62);
         c2 = color(240, 101, 149); // Neon Pink/Magenta
@@ -678,35 +701,24 @@
       }
     }
 
-    // --- POLLEN CLASS DEFINITION ---
-    class Pollen {
-      constructor(x, y, col) {
-        this.pos = createVector(x, y);
-        this.vel = createVector(random(-0.8, 0.8), random(-1.6, -0.4)); // Drifts upward
-        this.alpha = 255;
-        this.color = col;
-        this.size = random(2.0, 4.5);
-        this.noiseSeed = random(100);
+    // --- SWITCH ACTIVE FLOWER TYPE ---
+    function switchFlower(type) {
+      if (currentFlowerType === type) return;
+      currentFlowerType = type;
+      
+      // Update UI button states
+      document.querySelectorAll('.selector-btn').forEach(btn => btn.classList.remove('active'));
+      if (type === 'dragon') {
+        document.querySelector('.selector-btn:nth-child(1)').classList.add('active');
+      } else {
+        document.querySelector('.selector-btn:nth-child(2)').classList.add('active');
       }
       
-      update() {
-        // Add slight wind-drift using Perlin noise
-        let wind = noise(this.pos.x * 0.01, this.pos.y * 0.01, frameCount * 0.01 + this.noiseSeed) * 0.8 - 0.4;
-        this.pos.x += this.vel.x + wind;
-        this.pos.y += this.vel.y;
-        this.alpha -= 2.8; // Decay rate
-      }
+      // Regenerate L-system flower segments
+      generateFlower(type);
       
-      display() {
-        noStroke();
-        // Glowing outer circle
-        fill(this.color.levels[0], this.color.levels[1], this.color.levels[2], this.alpha * 0.2);
-        ellipse(this.pos.x, this.pos.y, this.size * 2.8, this.size * 2.8);
-        
-        // Solid white spark core
-        fill(255, 255, 255, this.alpha);
-        ellipse(this.pos.x, this.pos.y, this.size, this.size);
-      }
+      // Reset growth state for transition animation
+      currentGrowth = 0.0;
     }
 
     // --- CLICK-TO-CALIBRATE FEEDBACK ---
@@ -805,8 +817,9 @@
           isAudioActive = true;
           isInitializing = false;
           
-          // Show HUD panel
+          // Show HUD and Selector panels
           document.getElementById('hud').classList.add('visible');
+          document.getElementById('flower-selector').classList.add('visible');
           
           // Fade out intro overlay screen smoothly
           const overlay = document.getElementById('intro-overlay');
